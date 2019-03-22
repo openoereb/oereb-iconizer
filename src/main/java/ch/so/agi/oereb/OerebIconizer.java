@@ -21,7 +21,8 @@ import org.slf4j.LoggerFactory;
 public class OerebIconizer {
     Logger log = LoggerFactory.getLogger(this.getClass());
     
-    public void run(String configFilename) throws Exception {
+    // ENUM already here?
+    public void run(String configFilename, String vendor) throws Exception {
         log.info(configFilename);
         log.info(configFilename.substring(0,4));
         
@@ -51,5 +52,12 @@ public class OerebIconizer {
             configFile = new File(configFilename);
         }
         log.info(configFile.getAbsolutePath());
+        
+        StyleConfigParser styleConfigParser = null;        
+        if (vendor.equalsIgnoreCase(StyleConfigParsers.QGIS3.toString())) {
+            styleConfigParser = new Qgis3StyleConfigParser();
+            styleConfigParser.parse(configFile);
+        }
+        
     }
 }

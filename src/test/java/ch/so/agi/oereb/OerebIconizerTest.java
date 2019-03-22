@@ -10,7 +10,7 @@ public class OerebIconizerTest {
     @Test
     public void dummy() throws Exception {
         OerebIconizer iconizer = new OerebIconizer();
-        iconizer.run("http://localhost/qgis/npl?&SERVICE=WMS&REQUEST=GetStyles&LAYERS=npl&SLD_VERSION=1.1.0");
+        iconizer.run("http://localhost/qgis/npl?&SERVICE=WMS&REQUEST=GetStyles&LAYERS=npl&SLD_VERSION=1.1.0", "qgis3");
         
         
         
