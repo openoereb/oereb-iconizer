@@ -17,6 +17,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+
+// TODO: Rename interface and class. It's more a SymbolTypeCodeBuilder whatever...
 public class Qgis3StyleConfigParser implements StyleConfigParser {
     Logger log = LoggerFactory.getLogger(this.getClass());
 
