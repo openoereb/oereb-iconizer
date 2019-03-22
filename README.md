@@ -20,9 +20,11 @@ http://localhost:8380/?&SERVICE=WMS&VERSION=1.3.0&REQUEST=GetLegendGraphic&LAYER
 
 
 ## Notizen
-Im Rahmenmodell (Transferstruktur) muss das passende Symbol dem Attribut `artcode` zugewiesen werden. Das ist automatisch nur möglich wenn man Abmachungen trifft, d.h. aus dem maschinenlesbaren Konfigurationsfile (in unserem Fall das SLD via GetStyles) muss die Maschine lesen können welches Symbol welchem `artcode` zugewiesen werden kann. In einer ersten Version gehe ich davon aus, dass im Filter `ogc:PropertyIsEqualTo` der Artcode steht. Weil aber vielleicht nicht immer mit  `ogc:PropertyIsEqualTo` gearbeitet wird, wäre z.B. auch das `se:Description`- oder `se:Abstract`-Feld möglich. Jedenfalls sollte (oder muss) es katasterinfrastrukturweit identisch sein.
+Im Rahmenmodell (Transferstruktur) muss das passende Symbol dem Attribut `artcode` zugewiesen werden. Das ist automatisch nur möglich wenn man Abmachungen trifft, d.h. aus dem maschinenlesbaren Konfigurationsfile (in unserem Fall das SLD via GetStyles) muss die Maschine lesen können welches Symbol welchem `artcode`(-Wert) zugewiesen werden kann. In einer ersten Version gehe ich davon aus, dass im Filter `ogc:PropertyIsEqualTo` der Artcode steht. Weil aber vielleicht nicht immer mit  `ogc:PropertyIsEqualTo` gearbeitet wird, wäre z.B. auch das `se:Description`- oder `se:Abstract`-Feld möglich. Jedenfalls sollte (oder muss) es katasterinfrastrukturweit identisch sein.
 
 Es darf pro Rahmenmodell-Artcode nur eine Rule geben, d.h. zum Beispiel keine massstabsabhängigen Darstellungen. Sind mehrere Rules für den gleichen Artcode vorhanden, wird der erste wieder überschrieben.
+
+
 
 --> Gehört wohl ins Betriebshandbuch.
 

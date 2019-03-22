@@ -26,6 +26,13 @@ public class OerebIconizer {
         log.info(configFilename);
         log.info(configFilename.substring(0,4));
         
+        try {
+            StyleConfigParsers.valueOf(vendor); 
+        } catch (IllegalArgumentException e) {
+            throw new Exception("no StyleConfigParser implementation found for: " + vendor);
+        }
+        
+        
         File configFile = null; 
         if (configFilename.substring(0,4).equalsIgnoreCase("http")) {
             try {
@@ -54,7 +61,7 @@ public class OerebIconizer {
         log.info(configFile.getAbsolutePath());
         
         StyleConfigParser styleConfigParser = null;        
-        if (vendor.equalsIgnoreCase(StyleConfigParsers.QGIS3.toString())) {
+        if (StyleConfigParsers.valueOf(vendor).equals(StyleConfigParsers.QGIS3)) {
             styleConfigParser = new Qgis3StyleConfigParser();
             styleConfigParser.parse(configFile);
         }
