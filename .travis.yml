@@ -1,0 +1,16 @@
+sudo: required
+
+language: java
+
+services:
+  - docker
+
+branches:
+  only:
+    - master
+    - stable
+
+install: true
+
+script:
+  - ./gradlew clean build
