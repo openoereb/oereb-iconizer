@@ -1,70 +1,50 @@
 package ch.so.agi.oereb;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.awt.image.BufferedImage;
+import java.util.Map;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.client.LaxRedirectStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class OerebIconizer {
     Logger log = LoggerFactory.getLogger(this.getClass());
     
-    // ENUM already here?
-    public void run(String configFilename, String vendor) throws Exception {
-        log.info(configFilename);
-        log.info(configFilename.substring(0,4));
+    /**
+     * 
+     * @param configFileName GetStyles request url (= SLD file).
+     * @param legendGraphicUrl GetLegendGraphic request url with the vendor specific parameters for single symbol support. 
+     * The RULE parameter is added dynamically. The LAYER parameter must be included.
+     * @throws Exception
+     */
+    public Map<String,BufferedImage> getSymbolsQgis3(String configFileName, String legendGraphicUrl) throws Exception {        
+//        try {
+//            SymbolTypeCodeBuilders.valueOf(vendor); 
+//        } catch (IllegalArgumentException e) {
+//            throw new Exception("No StyleConfigParser implementation found for: " + vendor);
+//        }
         
-        try {
-            StyleConfigParsers.valueOf(vendor); 
-        } catch (IllegalArgumentException e) {
-            throw new Exception("no StyleConfigParser implementation found for: " + vendor);
+        // Save remote file if necessary.
+//        File configFile = handleConfigInput(configFilename);
+//        log.info(configFile.getAbsolutePath());
+        
+        // Create the type code value / symbol map.
+        SymbolTypeCodeBuilder styleConfigBuilder = new Qgis3SymbolTypeCodeBuilder(configFileName, legendGraphicUrl);
+        Map<String,BufferedImage> typeCodeSymbols = styleConfigBuilder.build();
+        return typeCodeSymbols;
+        
+        // Insert symbols into database.
+//        insertSymbols(typeCodeSymbols);
+        
+//        SymbolTypeCodeBuilder styleConfigParser = null;        
+//        if (SymbolTypeCodeBuilders.valueOf(vendor).equals(SymbolTypeCodeBuilders.QGIS3)) {
+//            styleConfigParser = new Qgis3SymbolTypeCodeBuilder();
+////            styleConfigParser.build(configFile);
+//        } 
+    }
+    
+    public void insertSymbols(Map<String,BufferedImage> typeCodeSymbols, String jdbcUrl, String dbUsr, String dbPwd, String dbQTable) {
+        for (String key : typeCodeSymbols.keySet()) {
+            System.out.println(key + " " + typeCodeSymbols.get(key));
         }
-        
-        
-        File configFile = null; 
-        if (configFilename.substring(0,4).equalsIgnoreCase("http")) {
-            try {
-                String decodedRequest = java.net.URLDecoder.decode(configFilename, "UTF-8");
-                CloseableHttpClient httpclient = HttpClients.custom()
-                        .setRedirectStrategy(new LaxRedirectStrategy()) // adds HTTP REDIRECT support to GET and POST methods 
-                        .build();
-                HttpGet get = new HttpGet(new URL(decodedRequest).toURI()); 
-                CloseableHttpResponse response = httpclient.execute(get);
-                
-                Path tempDir = Files.createTempDirectory("oereb_iconizer_");
-                File tempFile = Paths.get(tempDir.toAbsolutePath().toFile().getAbsolutePath(), "getstyles.sld").toFile();
-                
-                InputStream source = response.getEntity().getContent();
-                FileUtils.copyInputStreamToFile(source, tempFile);
-                
-                configFile = tempFile;
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-                log.error(e.getMessage());
-                throw new Exception(e);
-            }
-        } else {
-            configFile = new File(configFilename);
-        }
-        log.info(configFile.getAbsolutePath());
-        
-        StyleConfigParser styleConfigParser = null;        
-        if (StyleConfigParsers.valueOf(vendor).equals(StyleConfigParsers.QGIS3)) {
-            styleConfigParser = new Qgis3StyleConfigParser();
-            styleConfigParser.parse(configFile);
-        }
-        
     }
 }

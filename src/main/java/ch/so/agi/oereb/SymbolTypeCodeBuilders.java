@@ -1,5 +1,5 @@
 package ch.so.agi.oereb;
 
-public enum StyleConfigParsers {
+public enum SymbolTypeCodeBuilders {
     QGIS3
 }

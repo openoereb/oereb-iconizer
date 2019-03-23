@@ -10,11 +10,8 @@ public class OerebIconizerTest {
     @Test
     public void dummy() throws Exception {
         OerebIconizer iconizer = new OerebIconizer();
-        iconizer.run("http://localhost/qgis/npl?&SERVICE=WMS&REQUEST=GetStyles&LAYERS=npl&SLD_VERSION=1.1.0", "QGIS3");
-        
-        
-        
-        
+        iconizer.getSymbolsQgis3("http://localhost:8380/qgis/npl?&SERVICE=WMS&REQUEST=GetStyles&LAYERS=npl&SLD_VERSION=1.1.0", 
+                "http://localhost:8380/qgis/npl?SERVICE=WMS&REQUEST=GetLegendGraphic&LAYER=npl&FORMAT=image/png&RULELABEL=false&LAYERTITLE=false&HEIGHT=35&WIDTH=70&SYMBOLHEIGHT=3&SYMBOLWIDTH=6&DPI=300");
         
         System.out.println("fubar");
     }

@@ -1,22 +1,29 @@
 # oereb-iconizer
-Creates icons for OEREB-Rahmenmodell and saves them in a ili2db created database structure.
+Creates icons for OEREB-Rahmenmodell and saves them in a database table as bytea.
 
 ## QGIS-Server
 
+### Docker
 Start WMS server:
 ```
-docker run --rm -v $PWD/data:/data -p 80:80 sogis/qgis-server-base:3.4
+docker run --rm -v $PWD/data:/data -p 8380:80 sogis/qgis-server-base:3.4
 ```
 
 GetStyles:
 ```
-http://localhost/qgis/npl?&SERVICE=WMS&REQUEST=GetStyles&LAYERS=npl&SLD_VERSION=1.1.0
+http://localhost:8380/qgis/npl?&SERVICE=WMS&REQUEST=GetStyles&LAYERS=npl&SLD_VERSION=1.1.0
 ```
 
 GetLegendGraphic:
 ```
-http://localhost:8380/?&SERVICE=WMS&VERSION=1.3.0&REQUEST=GetLegendGraphic&LAYER=npl&FORMAT=image/png&STYLE=default&SLD_VERSION=1.1.0&RULELABEL=false&LAYERTITLE=false
+http://localhost:8380/qgis/npl?&SERVICE=WMS&VERSION=1.3.0&REQUEST=GetLegendGraphic&LAYER=npl&FORMAT=image/png&STYLE=default&SLD_VERSION=1.1.0&RULELABEL=false&LAYERTITLE=false
 ```
+
+### Vagrant
+```
+http://192.168.50.8/cgi-bin/qgis_mapserv.fcgi?map=/vagrant/data/npl.qgs&SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0
+```
+
 
 
 ## Notizen

@@ -1,3 +1,4 @@
+.vagrant
 src/main/resources/templates/version.txt
 
 target/
