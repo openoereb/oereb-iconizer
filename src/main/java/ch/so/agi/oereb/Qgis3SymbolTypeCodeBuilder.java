@@ -76,10 +76,10 @@ public class Qgis3SymbolTypeCodeBuilder implements SymbolTypeCodeBuilder {
             String ruleName = URLEncoder.encode(simpleRule.getRuleName(), "UTF-8");
             String requestUrl = legendGraphicUrl + "&RULE=" + ruleName;
             
-            log.debug(requestUrl);
-            BufferedImage symbol = Utilities.getRemoteImage(requestUrl);
-         
-            typeCodeSymbolMap.put(simpleRule.getTypeCodeValue(), symbol);
+            log.info(requestUrl);
+//            BufferedImage symbol = Utilities.getRemoteImage(requestUrl);
+//         
+//            typeCodeSymbolMap.put(simpleRule.getTypeCodeValue(), symbol);
         }
         
         log.debug(typeCodeSymbolMap.toString());

@@ -2,12 +2,15 @@
 # oereb-iconizer
 Creates icons for OEREB-Rahmenmodell and saves them in a database table as bytea.
 
+## Developing
+testcontainers / Docker images!!
+
 ## QGIS-Server
 
 ### Docker
 Start WMS server:
 ```
-docker run --rm -v $PWD/data:/data -p 8380:80 sogis/qgis-server-base:3.4
+docker run --rm -v $PWD/src/test/resources/qgis3:/data -p 8380:80 sogis/qgis-server-base:3.4
 ```
 
 GetStyles:
