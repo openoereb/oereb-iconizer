@@ -2,6 +2,38 @@
 # oereb-iconizer
 Creates icons for OEREB-Rahmenmodell and saves them in a database table as bytea.
 
+Programmbibliothek für das Herstellen von Symbolen für das ÖREB-Rahmenmodell. Die Symbole können in der Datenbank in einer Tabelle gespeichert werden resp. leere Attribute upgedated werden.
+
+Inhalt der Dokumentation:
+
+1. Beschreibung
+2. Betriebsdokumentation
+3. Entwicklerdokumentation
+4. TODO
+5. Hinweise
+
+## Beschreibung
+Im Teilmodell _Transferstruktur_ (`OeREBKRMtrsfr_V1_1`) des ÖREB-Rahmenmodells werden in der STRUCTURE `LegendeEintrag` das Symbol (`Symbol`) eines Legendeneintrages mit dem dazugehörigen Artcodes (`ArtCode`) gespeichert. Diese Symbole können für die Produktion des XML- und PDF-Auszuges verwendent werden.
+
+Die Herstellung der einzelnen Symbole scheint bei der Umsetzung des ÖREB-Katasters eine der mühsameren Arbeiten zu sein, da z.B. die WMS-Spezifikation diesen Usecase nicht kennt und nur vollständige Legende zurückliefert. Für _MapServer_, _GeoServer_ und _QGIS-Server_ stehen vendor-spezifische Parameter zur Verfügung, die das Anfordern eines einzelen Symbols ermöglicht. Diese erweiterte Funktionalität macht sie _oereb-iconizer_ zu Nutze. 
+
+Das Herstellen der einzelnen Symbole und das Speichern in der Datenbank ist in zwei Schritte/Methoden unterteilt, so besteht die Möglichkeit für das Herstellen der Symbole durch das Implementieren eines Interfaces andere WMS-Server zu unterstützen. Zum jetzigen Zeitpunkt gibt es eine Implementierung für QGIS-3.4.
+
+## Betriebsdokumentation
+Bei jedem Git-Push wird mittels Travis ein Jar-Datei neu gebildet und als `oereb-iconizer-1.0.(Versionsnummer).jar` auf Bintray/jcenter bereitgestellt.
+
+## Entwicklerdokumentation
+Fubar
+
+## TODO
+
+## Hinweise
+### Qgis-3.4-Implementierung (Amt für Geoinformation Kanton Solothurn)
+...
+
+
+## OLD DOCUMENTATION
+
 ## Developing
 testcontainers / Docker images!!
 
