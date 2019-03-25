@@ -93,7 +93,7 @@ public class OerebIconizerTest {
     }
     
     @Test
-    public void insertSymbol_Ok() throws Exception {
+    public void updateSymbol_Ok() throws Exception {
         String schemaName = "insertsymbols".toLowerCase();
         String tableName = "test".toLowerCase();
         String dbQTable = schemaName+"."+tableName;
@@ -112,7 +112,7 @@ public class OerebIconizerTest {
             
             Statement s1 = con.createStatement();
             s1.execute("CREATE TABLE " + dbQTable + "(t_id SERIAL, artcode TEXT, symbol BYTEA);");
-            // TODO: INSERT row with missing symbol
+            s1.execute("INSERT INTO " + dbQTable + "(artcode) VALUES('" + typeCode +"');");
             s1.close();
             con.commit();
             closeConnection(con);
@@ -122,7 +122,7 @@ public class OerebIconizerTest {
             typeCodeSymbols.put(typeCode, ImageIO.read(symbolFile));
             
             OerebIconizer iconizer = new OerebIconizer();
-            iconizer.insertSymbols(typeCodeSymbols, postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword(), dbQTable, typeCodeAttrName, symbolAttrName);
+            iconizer.updateSymbols(typeCodeSymbols, postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword(), dbQTable, typeCodeAttrName, symbolAttrName);
 
             // Check if everything is ok.
             con = connect(postgres);

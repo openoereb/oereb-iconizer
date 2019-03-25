@@ -46,11 +46,8 @@ public class OerebIconizer {
         }
     }
     
-    
-    // TODO: WRONG WRONG. At the moment it just inserts rows. We need something like update WHERE typecode = ...
-    // "UPDATE " + dbQTable + " SET " + typeCodeAttrName + " = " 
     /**
-     * Inserts the symbols into a database table to the according type code.
+     * Updates the symbols in a database table of the according type code.
      * 
      * @param typeCodeSymbols  Map with the type code and the symbols.
      * @param jdbcUrl JDBC url
@@ -61,23 +58,23 @@ public class OerebIconizer {
      * @param symbolAttrName Name of the symbol attribute in the database.
      * @throws Exception
      */
-    public void insertSymbols(Map<String,BufferedImage> typeCodeSymbols, String jdbcUrl, String dbUsr, String dbPwd, String dbQTable, String typeCodeAttrName, String symbolAttrName) throws Exception {
+    public void updateSymbols(Map<String,BufferedImage> typeCodeSymbols, String jdbcUrl, String dbUsr, String dbPwd, String dbQTable, String typeCodeAttrName, String symbolAttrName) throws Exception {
         Connection conn = getDbConnection(jdbcUrl, dbUsr, dbPwd);
         
         PreparedStatement pstmt = null;
-        String insertSql = "INSERT INTO " + dbQTable + "("+typeCodeAttrName+", "+symbolAttrName+") VALUES(?, ?);";
-        
+        String updateSql = "UPDATE " + dbQTable + " SET " + symbolAttrName + " = ? WHERE " + typeCodeAttrName + " = ?;";
+
         try {
-            pstmt = conn.prepareStatement(insertSql);
+            pstmt = conn.prepareStatement(updateSql);
             for (String key : typeCodeSymbols.keySet()) {
                 log.debug(key + " " + typeCodeSymbols.get(key));
-                
-                pstmt.setString(1, key);
-                
+                                
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 ImageIO.write(typeCodeSymbols.get(key), "png", baos);
                 byte[] symbolInByte = baos.toByteArray();
-                pstmt.setBytes(2, symbolInByte);
+                pstmt.setBytes(1, symbolInByte);
+                
+                pstmt.setString(2, key);
             }
             pstmt.executeUpdate();
             
