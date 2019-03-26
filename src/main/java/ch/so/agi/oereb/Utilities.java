@@ -25,7 +25,7 @@ public class Utilities {
     /**
      * If configFilename is a remote file, save it locally.
      * 
-     * @param configFilename
+     * @param configFilename The configuration file (local or remote)
      * @return File
      * @throws Exception
      */

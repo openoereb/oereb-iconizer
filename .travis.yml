@@ -14,3 +14,10 @@ install: true
 
 script:
   - ./gradlew clean build
+
+  deploy:
+  - provider: script
+    skip_cleanup: true
+    script: ./gradlew bintrayUpload 
+    on:
+      branch: master

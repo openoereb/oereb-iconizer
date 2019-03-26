@@ -1,7 +1,9 @@
 plugins {
     id 'java-library'
+    id "com.jfrog.bintray" version "1.8.4"     
 }
 
+apply plugin: 'maven-publish'
 apply from: "gradle/versioning.gradle"
 
 repositories {
@@ -33,3 +35,87 @@ test {
     useJUnitPlatform {}
     failFast = true
 }
+
+// Bintray / jcenter
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+javadoc.failOnError = false
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives sourcesJar
+    archives javadocJar
+}
+
+def githubRepoUrl = "https://github.com/edigonzales/oereb-iconizer"
+def pomConfig = {
+    licenses {
+        license {
+            name "MIT License"
+            url "https://github.com/edigonzales/oereb-iconizer/blob/master/LICENSE"
+        }
+    }
+    developers {
+        developer {
+            id "edigonzales"
+            name "Stefan Ziegler"
+            email "stefan.ziegler@bd.so.ch"
+        }
+    }
+
+    scm {
+        url githubRepoUrl
+    }
+}
+
+publishing {
+    publications {
+        mavenPublication(MavenPublication) {
+            from components.java
+            artifact sourcesJar {
+                classifier "sources"
+            }
+            artifact javadocJar {
+                classifier "javadoc"
+            }
+            groupId project.group
+            artifactId 'oereb-iconizer'
+            version project.version
+            pom.withXml {
+                def root = asNode()
+                root.appendNode('description', 'Creates icons for OEREB-Rahmenmodell and saves them in a database table as bytea.')
+                root.appendNode('name', 'oereb-iconizer')
+                root.appendNode('url', githubRepoUrl)
+                root.children().last() + pomConfig
+            }
+        }
+    }
+}
+
+bintray {
+    user = System.env.bintrayUser
+    key = System.env.bintrayKey
+    publications = ['mavenPublication']
+    publish = true
+    
+    pkg {
+        repo = 'oereb-iconizer'
+        name = 'oereb-iconizer'
+        userOrg = 'sogis'
+        licenses = ['MIT']
+        labels = ['oereb', 'plr', 'java']        
+        vcsUrl = githubRepoUrl
+        version {
+            name = project.version
+            desc = project.version
+            released  = new Date()
+        }
+    }
+}
+
