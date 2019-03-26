@@ -3,6 +3,8 @@ package ch.so.agi.oereb;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -37,6 +39,7 @@ public class OerebIconizer {
      * 
      * @param typeCodeSymbols Map with the type code and the symbols. 
      * @param directory Directory to save the symbols.
+     * @throws IOException 
      * @throws Exception
      */
     public void saveSymbolsToDisk(Map<String,BufferedImage> typeCodeSymbols, String directory) throws Exception {

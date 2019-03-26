@@ -1,11 +1,14 @@
 package ch.so.agi.oereb;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
@@ -56,27 +59,60 @@ public class OerebIconizerTest {
         String ipAddress = qgis.getContainerIpAddress();
         String port = String.valueOf(qgis.getFirstMappedPort());
         
-        String getStylesRequest = "http://" + ipAddress + ":" + port + "/qgis/npl?&SERVICE=WMS&REQUEST=GetStyles&LAYERS=npl&SLD_VERSION=1.1.0";
+        String getStylesRequest = "http://" + ipAddress + ":" + port + "/qgis/singlesymbol?&SERVICE=WMS&REQUEST=GetStyles&LAYERS=singlepolygon&SLD_VERSION=1.1.0";
         log.info(getStylesRequest);
         
-        String getLegendGraphicRequest = "http://" + ipAddress + ":" + port + "/qgis/npl?SERVICE=WMS&REQUEST=GetLegendGraphic&LAYER=npl&FORMAT=image/png&RULELABEL=false&LAYERTITLE=false&HEIGHT=35&WIDTH=70&SYMBOLHEIGHT=3&SYMBOLWIDTH=6&DPI=300";
+        String getLegendGraphicRequest = "http://" + ipAddress + ":" + port + "/qgis/singlesymbol?SERVICE=WMS&REQUEST=GetLegendGraphic&LAYER=singlepolygon&FORMAT=image/png&RULELABEL=false&LAYERTITLE=false&HEIGHT=35&WIDTH=70&SYMBOLHEIGHT=3&SYMBOLWIDTH=6&DPI=300";
         log.info(getLegendGraphicRequest);
 
         OerebIconizer iconizer = new OerebIconizer();
         Map<String, BufferedImage> typeCodeSymbols = iconizer.getSymbolsQgis3(getStylesRequest, getLegendGraphicRequest);
         
-        // TODO:
-        // - very simple qgis project with only one rule (symbol).
-        // - very few data
-        // - assert / test
-        // - use npl for integration test in gretl
-    }
+        assertEquals(1, typeCodeSymbols.size());
+        
+        String typeCode = "N111".toLowerCase();
+        File symbolFile = new File("src/test/data/gruen_und_freihaltezone_innerhalb_bauzone.png");
+        BufferedImage symbolFileImage = ImageIO.read(symbolFile);
+        
+        String resultTypeCode = null;
+        BufferedImage resultImage = null;
+        for (String key : typeCodeSymbols.keySet()) {
+            resultTypeCode = key;
+            resultImage = typeCodeSymbols.get(key);
+            break;
+        }
 
+        assertEquals(typeCode, resultTypeCode.toLowerCase());
+        assertEquals(symbolFileImage.getHeight(), resultImage.getHeight());
+        assertEquals(symbolFileImage.getWidth(), resultImage.getWidth());
+        assertEquals(symbolFileImage.isAlphaPremultiplied(), resultImage.isAlphaPremultiplied());
+    }
+    
+    // see: https://bugs.openjdk.java.net/browse/JDK-8196123 and https://stackoverflow.com/questions/11153200/with-imageio-write-api-call-i-get-nullpointerexception
+    // ImageIO.write throws a NPE if it cannot write the file and not a FileNotFoundException.
+    @Test
+    public void saveSymbolsToDisk_Permission_Fail() throws Exception {
+        String directory = "/";
+        String typeCode = "N111".toLowerCase();
+        File symbolFile = new File("src/test/data/gruen_und_freihaltezone_innerhalb_bauzone.png");
+
+        Map<String,BufferedImage> typeCodeSymbols = new HashMap<String,BufferedImage>();
+        typeCodeSymbols.put(typeCode, ImageIO.read(symbolFile));
+        
+        try {
+            OerebIconizer iconizer = new OerebIconizer();
+            iconizer.saveSymbolsToDisk(typeCodeSymbols, directory);
+
+        } catch (java.lang.NullPointerException e) {            
+            // do nothing
+        }
+    }
+    
     @Test
     public void saveSymbolsToDisk_Ok(@TempDir Path tempDir) throws Exception {
         String directory = tempDir.toFile().getAbsolutePath();
-        String typeCode = "N390".toLowerCase();
-        File symbolFile = new File("src/test/data/weitere_schutzzone_ausserhalb_bauzone.png");
+        String typeCode = "N111".toLowerCase();
+        File symbolFile = new File("src/test/data/gruen_und_freihaltezone_innerhalb_bauzone.png");
 
         Map<String,BufferedImage> typeCodeSymbols = new HashMap<String,BufferedImage>();
         typeCodeSymbols.put(typeCode, ImageIO.read(symbolFile));
@@ -84,12 +120,12 @@ public class OerebIconizerTest {
         OerebIconizer iconizer = new OerebIconizer();
         iconizer.saveSymbolsToDisk(typeCodeSymbols, directory);
 
-        File resultFile = Paths.get(tempDir.toFile().getAbsolutePath(), "N390.png".toLowerCase()).toFile();
+        File resultFile = Paths.get(tempDir.toFile().getAbsolutePath(), "N111.png".toLowerCase()).toFile();
         BufferedImage resultImage = ImageIO.read(resultFile);
 
         assertEquals(ImageIO.read(symbolFile).getHeight(), resultImage.getHeight());
         assertEquals(ImageIO.read(symbolFile).getWidth(), resultImage.getWidth());
-        assertEquals(ImageIO.read(symbolFile).getColorModel(), resultImage.getColorModel());
+        assertEquals(ImageIO.read(symbolFile).isAlphaPremultiplied(), resultImage.isAlphaPremultiplied());
     }
     
     @Test
@@ -140,7 +176,7 @@ public class OerebIconizerTest {
             BufferedImage bim = ImageIO.read(bis);
             assertEquals(ImageIO.read(symbolFile).getHeight(), bim.getHeight());
             assertEquals(ImageIO.read(symbolFile).getWidth(), bim.getWidth());
-            assertEquals(ImageIO.read(symbolFile).getColorModel(), bim.getColorModel());
+            assertEquals(ImageIO.read(symbolFile).isAlphaPremultiplied(), bim.isAlphaPremultiplied());
             
             if(rs.next()) {
                 fail();

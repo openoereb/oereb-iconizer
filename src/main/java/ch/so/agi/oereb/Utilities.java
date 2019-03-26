@@ -1,6 +1,9 @@
 package ch.so.agi.oereb;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -71,8 +74,18 @@ public class Utilities {
             
             InputStream inputStream = response.getEntity().getContent();
             BufferedImage image = ImageIO.read(inputStream);
+
             // force 3 band image
             BufferedImage fixedImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
+            Graphics2D g = (Graphics2D) fixedImage.getGraphics();
+            g.setBackground(Color.WHITE);
+            g.clearRect(0, 0, image.getWidth(), image.getHeight());   
+            g.drawImage(image, 0, 0, null);               
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(fixedImage, "png", baos); 
+            baos.flush();
+            baos.close();          
+            
             return fixedImage;
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();

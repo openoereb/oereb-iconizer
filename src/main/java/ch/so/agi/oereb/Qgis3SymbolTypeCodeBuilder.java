@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.imageio.ImageIO;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
@@ -76,10 +77,10 @@ public class Qgis3SymbolTypeCodeBuilder implements SymbolTypeCodeBuilder {
             String ruleName = URLEncoder.encode(simpleRule.getRuleName(), "UTF-8");
             String requestUrl = legendGraphicUrl + "&RULE=" + ruleName;
             
-            log.info(requestUrl);
-//            BufferedImage symbol = Utilities.getRemoteImage(requestUrl);
-//         
-//            typeCodeSymbolMap.put(simpleRule.getTypeCodeValue(), symbol);
+            log.debug(requestUrl);
+            BufferedImage symbol = Utilities.getRemoteImage(requestUrl);
+                        
+            typeCodeSymbolMap.put(simpleRule.getTypeCodeValue(), symbol);
         }
         
         log.debug(typeCodeSymbolMap.toString());
