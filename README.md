@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/edigonzales/oereb-iconizer.svg?branch=master)](https://travis-ci.org/edigonzales/oereb-iconizer)
+[![Build Status](https://travis-ci.org/openoereb/oereb-iconizer.svg?branch=master)](https://travis-ci.org/openoereb/oereb-iconizer)
 # oereb-iconizer
 Creates icons for OEREB-Rahmenmodell and saves them in a database table as bytea.
 
