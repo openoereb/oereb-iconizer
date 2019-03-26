@@ -53,12 +53,12 @@ artifacts {
     archives javadocJar
 }
 
-def githubRepoUrl = "https://github.com/edigonzales/oereb-iconizer"
+def githubRepoUrl = "https://github.com/openoereb/oereb-iconizer"
 def pomConfig = {
     licenses {
         license {
             name "MIT License"
-            url "https://github.com/edigonzales/oereb-iconizer/blob/master/LICENSE"
+            url "https://github.com/openoereb/oereb-iconizer/blob/master/LICENSE"
         }
     }
     developers {
