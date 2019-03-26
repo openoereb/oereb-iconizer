@@ -23,7 +23,7 @@ Das Herstellen der einzelnen Symbole und das Speichern in der Datenbank ist in z
 Bei jedem Git-Push wird mittels Travis ein Jar-Datei neu gebildet und als `oereb-iconizer-1.0.(Versionsnummer).jar` auf Bintray/jcenter bereitgestellt.
 
 ## Entwicklerdokumentation
-Fubar
+Fubar... CONTINUE HERE....
 
 ## TODO
 

@@ -15,7 +15,7 @@ install: true
 script:
   - ./gradlew clean build
 
-  deploy:
+deploy:
   - provider: script
     skip_cleanup: true
     script: ./gradlew bintrayUpload 
