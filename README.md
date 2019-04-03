@@ -18,6 +18,11 @@ Die Herstellung der einzelnen Symbole scheint bei der Umsetzung des ÖREB-Katast
 
 Das Herstellen der einzelnen Symbole und das Speichern in der Datenbank ist in zwei Schritte/Methoden unterteilt, so besteht die Möglichkeit für das Herstellen der Symbole durch das Implementieren eines Interfaces andere WMS-Server zu unterstützen. Zum jetzigen Zeitpunkt gibt es eine Implementierung für QGIS-3.4.
 
+### Einschränkungen
+Es dürfen nicht mehr Symbole in der Datenbank nachgeführt werden als wirklich bereits Records vorhanden sind.
+
+Artcode-Wert muss eindeutig sein.
+
 ## Betriebsdokumentation
 Bei jedem Git-Push wird mittels Travis ein Jar-Datei neu gebildet und als `oereb-iconizer-1.0.(Versionsnummer).jar` auf Bintray/jcenter bereitgestellt.
 
