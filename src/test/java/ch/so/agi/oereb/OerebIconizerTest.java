@@ -158,7 +158,7 @@ public class OerebIconizerTest {
             typeCodeSymbols.put(typeCode, ImageIO.read(symbolFile));
             
             OerebIconizer iconizer = new OerebIconizer();
-            iconizer.updateSymbols(typeCodeSymbols, postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword(), dbQTable, typeCodeAttrName, symbolAttrName);
+            int count = iconizer.updateSymbols(typeCodeSymbols, postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword(), dbQTable, typeCodeAttrName, symbolAttrName);
 
             // Check if everything is ok.
             con = connect(postgres);
@@ -168,6 +168,8 @@ public class OerebIconizerTest {
             if(!rs.next()) {
                 fail();
             }
+            
+            assertEquals(1, count);
             
             assertEquals(typeCode, rs.getString(1));
             

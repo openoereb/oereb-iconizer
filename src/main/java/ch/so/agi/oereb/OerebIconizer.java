@@ -61,7 +61,7 @@ public class OerebIconizer {
      * @param symbolAttrName Name of the symbol attribute in the database.
      * @throws Exception
      */
-    public void updateSymbols(Map<String,BufferedImage> typeCodeSymbols, String jdbcUrl, String dbUsr, String dbPwd, String dbQTable, String typeCodeAttrName, String symbolAttrName) throws Exception {
+    public int updateSymbols(Map<String,BufferedImage> typeCodeSymbols, String jdbcUrl, String dbUsr, String dbPwd, String dbQTable, String typeCodeAttrName, String symbolAttrName) throws Exception {
         Connection conn = getDbConnection(jdbcUrl, dbUsr, dbPwd);
         
         PreparedStatement pstmt = null;
@@ -79,13 +79,15 @@ public class OerebIconizer {
                 
                 pstmt.setString(2, key);
             }
-            pstmt.executeUpdate();
+            int count = pstmt.executeUpdate();
             
             if (pstmt != null) {
                 pstmt.close();
             }
             
             conn.close();
+            
+            return count;
         } catch (Exception e) {
             log.error(e.getMessage());
             throw new Exception(e);
