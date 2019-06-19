@@ -83,7 +83,7 @@ public class OerebIconizer {
                 ImageIO.write(entry.getSymbol(), "png", baos);
                 byte[] symbolInByte = baos.toByteArray();
                 pstmt.setBytes(1, symbolInByte);
-
+ 
                 pstmt.setString(2, entry.getLegendText());
                 
                 pstmt.setString(3, entry.getTypeCode());
