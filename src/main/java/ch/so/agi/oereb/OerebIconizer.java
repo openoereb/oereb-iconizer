@@ -10,6 +10,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Map;
 
 import javax.imageio.ImageIO;
@@ -28,24 +29,31 @@ public class OerebIconizer {
      * The RULE parameter is added dynamically. The LAYER parameter must be included.
      * @throws Exception
      */
-    public Map<String,BufferedImage> getSymbolsQgis3(String configFileName, String legendGraphicUrl) throws Exception {                
+    public List<LegendEntry> getSymbolsQgis3(String configFileName, String legendGraphicUrl) throws Exception {
         SymbolTypeCodeBuilder styleConfigBuilder = new Qgis3SymbolTypeCodeBuilder(configFileName, legendGraphicUrl);
-        Map<String,BufferedImage> typeCodeSymbols = styleConfigBuilder.build();
-        return typeCodeSymbols;
+        List<LegendEntry> legendEntries = styleConfigBuilder.build();
+        return legendEntries;
     }
+
+//    public Map<String,BufferedImage> getSymbolsQgis3V1(String configFileName, String legendGraphicUrl) throws Exception {                
+//        SymbolTypeCodeBuilder styleConfigBuilder = new Qgis3SymbolTypeCodeBuilder(configFileName, legendGraphicUrl);
+//        Map<String,BufferedImage> typeCodeSymbols = styleConfigBuilder.build();
+//        return typeCodeSymbols;
+//    }
     
     /**
      * Saves symbols to disk. The type code is the file name.
      * 
-     * @param typeCodeSymbols Map with the type code and the symbols. 
+     * @param legendEntries List with legend entries (type code, legend text and symbol).
      * @param directory Directory to save the symbols.
      * @throws IOException 
      * @throws Exception
      */
-    public void saveSymbolsToDisk(Map<String,BufferedImage> typeCodeSymbols, String directory) throws Exception {
-        for (String key : typeCodeSymbols.keySet()) {
-            File symbolFile = Paths.get(directory, key + ".png").toFile();
-            ImageIO.write(typeCodeSymbols.get(key), "png", symbolFile);
+    public void saveSymbolsToDisk(List<LegendEntry> legendEntries, String directory) throws Exception {
+        for (LegendEntry entry : legendEntries) {
+            String typeCode = entry.getTypeCode();
+            File symbolFile = Paths.get(directory, typeCode + ".png").toFile();
+            ImageIO.write(entry.getSymbol(), "png", symbolFile);
         }
     }
     
@@ -59,26 +67,28 @@ public class OerebIconizer {
      * @param dbQTable Qualified table name.
      * @param typeCodeAttrName Name of the type code attribute in the database.
      * @param symbolAttrName Name of the symbol attribute in the database.
+     * @param legendTextAttrName Name of the legend text attribute in the database.
      * @throws Exception
      */
-    public int updateSymbols(Map<String,BufferedImage> typeCodeSymbols, String jdbcUrl, String dbUsr, String dbPwd, String dbQTable, String typeCodeAttrName, String symbolAttrName) throws Exception {
+    public int updateSymbols(List<LegendEntry> legendEntries, String jdbcUrl, String dbUsr, String dbPwd, String dbQTable, String typeCodeAttrName, String symbolAttrName, String legendTextAttrName) throws Exception {
         Connection conn = getDbConnection(jdbcUrl, dbUsr, dbPwd);
         
         PreparedStatement pstmt = null;
-        String updateSql = "UPDATE " + dbQTable + " SET " + symbolAttrName + " = ? WHERE " + typeCodeAttrName + " = ?;";
+        String updateSql = "UPDATE " + dbQTable + " SET " + symbolAttrName + " = ?, " + legendTextAttrName + " = ? WHERE " + typeCodeAttrName + " = ?;";
 
         try {
             pstmt = conn.prepareStatement(updateSql);
-            for (String key : typeCodeSymbols.keySet()) {
-                log.debug(key + " " + typeCodeSymbols.get(key));
-                                
+            for (LegendEntry entry : legendEntries) {
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                ImageIO.write(typeCodeSymbols.get(key), "png", baos);
+                ImageIO.write(entry.getSymbol(), "png", baos);
                 byte[] symbolInByte = baos.toByteArray();
                 pstmt.setBytes(1, symbolInByte);
+
+                pstmt.setString(2, entry.getLegendText());
                 
-                pstmt.setString(2, key);
+                pstmt.setString(3, entry.getTypeCode());
             }
+            
             int count = pstmt.executeUpdate();
             
             if (pstmt != null) {

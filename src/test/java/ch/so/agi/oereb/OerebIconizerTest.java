@@ -16,7 +16,9 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.imageio.ImageIO;
@@ -66,22 +68,22 @@ public class OerebIconizerTest {
         log.info(getLegendGraphicRequest);
 
         OerebIconizer iconizer = new OerebIconizer();
-        Map<String, BufferedImage> typeCodeSymbols = iconizer.getSymbolsQgis3(getStylesRequest, getLegendGraphicRequest);
+        List<LegendEntry> legendEntries = iconizer.getSymbolsQgis3(getStylesRequest, getLegendGraphicRequest);
         
-        assertEquals(1, typeCodeSymbols.size());
+        assertEquals(1, legendEntries.size());
         
         String typeCode = "N111".toLowerCase();
         File symbolFile = new File("src/test/data/gruen_und_freihaltezone_innerhalb_bauzone.png");
         BufferedImage symbolFileImage = ImageIO.read(symbolFile);
-        
+
         String resultTypeCode = null;
         BufferedImage resultImage = null;
-        for (String key : typeCodeSymbols.keySet()) {
-            resultTypeCode = key;
-            resultImage = typeCodeSymbols.get(key);
+        for (LegendEntry entry:  legendEntries) {
+            resultTypeCode = entry.getTypeCode();
+            resultImage = entry.getSymbol();
             break;
         }
-
+        
         assertEquals(typeCode, resultTypeCode.toLowerCase());
         assertEquals(symbolFileImage.getHeight(), resultImage.getHeight());
         assertEquals(symbolFileImage.getWidth(), resultImage.getWidth());
@@ -96,12 +98,16 @@ public class OerebIconizerTest {
         String typeCode = "N111".toLowerCase();
         File symbolFile = new File("src/test/data/gruen_und_freihaltezone_innerhalb_bauzone.png");
 
-        Map<String,BufferedImage> typeCodeSymbols = new HashMap<String,BufferedImage>();
-        typeCodeSymbols.put(typeCode, ImageIO.read(symbolFile));
+        LegendEntry entry = new LegendEntry();
+        entry.setTypeCode(typeCode);
+        entry.setSymbol(ImageIO.read(symbolFile));
+        
+        List<LegendEntry> legendEntries = new ArrayList<LegendEntry>();
+        legendEntries.add(entry);
         
         try {
             OerebIconizer iconizer = new OerebIconizer();
-            iconizer.saveSymbolsToDisk(typeCodeSymbols, directory);
+            iconizer.saveSymbolsToDisk(legendEntries, directory);
 
         } catch (java.lang.NullPointerException e) {            
             // do nothing
@@ -114,11 +120,15 @@ public class OerebIconizerTest {
         String typeCode = "N111".toLowerCase();
         File symbolFile = new File("src/test/data/gruen_und_freihaltezone_innerhalb_bauzone.png");
 
-        Map<String,BufferedImage> typeCodeSymbols = new HashMap<String,BufferedImage>();
-        typeCodeSymbols.put(typeCode, ImageIO.read(symbolFile));
+        LegendEntry entry = new LegendEntry();
+        entry.setTypeCode(typeCode);
+        entry.setSymbol(ImageIO.read(symbolFile));
         
+        List<LegendEntry> legendEntries = new ArrayList<LegendEntry>();
+        legendEntries.add(entry);
+                
         OerebIconizer iconizer = new OerebIconizer();
-        iconizer.saveSymbolsToDisk(typeCodeSymbols, directory);
+        iconizer.saveSymbolsToDisk(legendEntries, directory);
 
         File resultFile = Paths.get(tempDir.toFile().getAbsolutePath(), "N111.png".toLowerCase()).toFile();
         BufferedImage resultImage = ImageIO.read(resultFile);
@@ -135,11 +145,13 @@ public class OerebIconizerTest {
         String dbQTable = schemaName+"."+tableName;
         String typeCodeAttrName = "artcode";
         String symbolAttrName = "symbol";
+        String legendTextAttrName = "legendetext";
         
         Connection con = null;
         
         String typeCode = "N390";
         File symbolFile = new File("src/test/data/weitere_schutzzone_ausserhalb_bauzone.png");
+        String legendText = "weitere Schutzzonen ausserhalb Bauzonen";
   
         try {
             // Prepare database: create table.
@@ -147,23 +159,28 @@ public class OerebIconizerTest {
             createOrReplaceSchema(con, schemaName);
             
             Statement s1 = con.createStatement();
-            s1.execute("CREATE TABLE " + dbQTable + "(t_id SERIAL, artcode TEXT, symbol BYTEA);");
+            s1.execute("CREATE TABLE " + dbQTable + "(t_id SERIAL, artcode TEXT, symbol BYTEA, legendetext TEXT);");
             s1.execute("INSERT INTO " + dbQTable + "(artcode) VALUES('" + typeCode +"');");
             s1.close();
             con.commit();
             closeConnection(con);
                         
             // Insert typecode and symbol with the iconizer.
-            Map<String,BufferedImage> typeCodeSymbols = new HashMap<String,BufferedImage>();
-            typeCodeSymbols.put(typeCode, ImageIO.read(symbolFile));
-            
+            List<LegendEntry> legendEntries = new ArrayList<LegendEntry>();
+            LegendEntry entry = new LegendEntry();
+            entry.setTypeCode(typeCode);
+            entry.setSymbol(ImageIO.read(symbolFile));
+            entry.setLegendText(legendText);
+            legendEntries.add(entry);
+                        
             OerebIconizer iconizer = new OerebIconizer();
-            int count = iconizer.updateSymbols(typeCodeSymbols, postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword(), dbQTable, typeCodeAttrName, symbolAttrName);
+            int count = iconizer.updateSymbols(legendEntries, postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword(), dbQTable, typeCodeAttrName, symbolAttrName, legendTextAttrName);
 
+            
             // Check if everything is ok.
             con = connect(postgres);
             Statement s2 = con.createStatement();
-            ResultSet rs = s2.executeQuery("SELECT artcode, symbol FROM " + dbQTable);
+            ResultSet rs = s2.executeQuery("SELECT artcode, symbol, legendetext FROM " + dbQTable);
             
             if(!rs.next()) {
                 fail();
@@ -180,6 +197,8 @@ public class OerebIconizerTest {
             assertEquals(ImageIO.read(symbolFile).getWidth(), bim.getWidth());
             assertEquals(ImageIO.read(symbolFile).isAlphaPremultiplied(), bim.isAlphaPremultiplied());
             
+            assertEquals(legendText, rs.getString(3));
+            
             if(rs.next()) {
                 fail();
             }
@@ -190,6 +209,54 @@ public class OerebIconizerTest {
             closeConnection(con);
         }
     }
+
+    /*
+     * Tries to update a symbol which does not exist in the database.
+     */
+    @Test
+    public void updateNonExistingSymbol_Ok() throws Exception {
+        String schemaName = "insertsymbols".toLowerCase();
+        String tableName = "test".toLowerCase();
+        String dbQTable = schemaName+"."+tableName;
+        String typeCodeAttrName = "artcode";
+        String symbolAttrName = "symbol";
+        String legendTextAttrName = "legendetext";
+        
+        Connection con = null;
+        
+        String typeCode = "N390";
+        File symbolFile = new File("src/test/data/weitere_schutzzone_ausserhalb_bauzone.png");
+        String legendText = "weitere Schutzzonen ausserhalb Bauzonen";
+  
+        try {
+            // Prepare database: create table.
+            con = connect(postgres);
+            createOrReplaceSchema(con, schemaName);
+            
+            Statement s1 = con.createStatement();
+            s1.execute("CREATE TABLE " + dbQTable + "(t_id SERIAL, artcode TEXT, symbol BYTEA, legendetext TEXT);");
+            s1.execute("INSERT INTO " + dbQTable + "(artcode) VALUES('" + typeCode +"');");
+            s1.close();
+            con.commit();
+            closeConnection(con);
+                        
+            // Insert typecode and symbol with the iconizer.
+            List<LegendEntry> legendEntries = new ArrayList<LegendEntry>();
+            LegendEntry entry = new LegendEntry();
+//            entry.setTypeCode(typeCode);
+            entry.setTypeCode("N999");
+            entry.setSymbol(ImageIO.read(symbolFile));
+            entry.setLegendText(legendText);
+            legendEntries.add(entry);
+                        
+            OerebIconizer iconizer = new OerebIconizer();
+            int count = iconizer.updateSymbols(legendEntries, postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword(), dbQTable, typeCodeAttrName, symbolAttrName, legendTextAttrName);
+
+            assertEquals(0, count);
+        } finally {
+            closeConnection(con);
+        }
+    }    
     
     private Connection connect(PostgreSQLContainer postgres) {
         Connection con = null;

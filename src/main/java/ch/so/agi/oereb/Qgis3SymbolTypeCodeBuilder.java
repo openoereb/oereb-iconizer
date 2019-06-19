@@ -35,8 +35,8 @@ public class Qgis3SymbolTypeCodeBuilder implements SymbolTypeCodeBuilder {
     }
     
     @Override
-    public Map<String, BufferedImage> build() throws Exception {
-        HashMap<String,BufferedImage> typeCodeSymbolMap = new HashMap<String,BufferedImage>();
+    public List<LegendEntry> build() throws Exception {
+        List<LegendEntry> legendEntries = new ArrayList<LegendEntry>();
         
         File configFile = Utilities.handleConfigInput(configFileName);
         if (configFile == null) {
@@ -66,25 +66,24 @@ public class Qgis3SymbolTypeCodeBuilder implements SymbolTypeCodeBuilder {
         Object result = expr.evaluate(document, XPathConstants.NODESET);
         NodeList nodes = (NodeList) result;
        
-        List<SimpleRule> simpleRules = new ArrayList<SimpleRule>();
         for (int i = 0; i < nodes.getLength(); i++) {
             SimpleRule simpleRule = evaluateRule(nodes.item(i));
-            simpleRules.add(simpleRule);
-        }
-
-        // Get the symbols from the wms server.
-        for (SimpleRule simpleRule : simpleRules) {
+            String typeCodeValue = simpleRule.getTypeCodeValue();            
             String ruleName = URLEncoder.encode(simpleRule.getRuleName(), "UTF-8");
-            String requestUrl = legendGraphicUrl + "&RULE=" + ruleName;
             
+            String requestUrl = legendGraphicUrl + "&RULE=" + ruleName;
             log.debug(requestUrl);
+            
             BufferedImage symbol = Utilities.getRemoteImage(requestUrl);
-                        
-            typeCodeSymbolMap.put(simpleRule.getTypeCodeValue(), symbol);
+
+            LegendEntry legendEntry = new LegendEntry();
+            legendEntry.setTypeCode(typeCodeValue);
+            legendEntry.setLegendText(simpleRule.getRuleName());
+            legendEntry.setSymbol(symbol);
+            
+            legendEntries.add(legendEntry);
         }
-        
-        log.debug(typeCodeSymbolMap.toString());
-        return typeCodeSymbolMap;
+        return legendEntries;
     }
     
     /*
