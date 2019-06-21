@@ -242,17 +242,25 @@ public class OerebIconizerTest {
                         
             // Insert typecode and symbol with the iconizer.
             List<LegendEntry> legendEntries = new ArrayList<LegendEntry>();
-            LegendEntry entry = new LegendEntry();
+            LegendEntry entryNonExisting = new LegendEntry();
 //            entry.setTypeCode(typeCode);
-            entry.setTypeCode("N999");
-            entry.setSymbol(ImageIO.read(symbolFile));
-            entry.setLegendText(legendText);
-            legendEntries.add(entry);
-                        
+            entryNonExisting.setTypeCode("N999");
+            entryNonExisting.setSymbol(ImageIO.read(symbolFile));
+            entryNonExisting.setLegendText(legendText);
+            legendEntries.add(entryNonExisting);
+            
+            LegendEntry entryExisting = new LegendEntry();
+            entryExisting.setTypeCode(typeCode);
+            entryExisting.setSymbol(ImageIO.read(symbolFile));
+            entryExisting.setLegendText(legendText);
+            legendEntries.add(entryExisting);
+
             OerebIconizer iconizer = new OerebIconizer();
             int count = iconizer.updateSymbols(legendEntries, postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword(), dbQTable, typeCodeAttrName, symbolAttrName, legendTextAttrName);
 
-            assertEquals(0, count);
+            //System.out.println(count);
+            
+            assertEquals(1, count);
         } finally {
             closeConnection(con);
         }

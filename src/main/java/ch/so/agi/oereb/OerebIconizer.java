@@ -75,10 +75,15 @@ public class OerebIconizer {
         
         PreparedStatement pstmt = null;
         String updateSql = "UPDATE " + dbQTable + " SET " + symbolAttrName + " = ?, " + legendTextAttrName + " = ? WHERE " + typeCodeAttrName + " = ?;";
+        log.info(updateSql);
 
         try {
             pstmt = conn.prepareStatement(updateSql);
             for (LegendEntry entry : legendEntries) {
+                log.info("TypeCode: " + entry.getTypeCode());
+                log.info("LegendText: " + entry.getLegendText());
+                log.info("Symbol: " + entry.getSymbol().toString());
+                
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 ImageIO.write(entry.getSymbol(), "png", baos);
                 byte[] symbolInByte = baos.toByteArray();

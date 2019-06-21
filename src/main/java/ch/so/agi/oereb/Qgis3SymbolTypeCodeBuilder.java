@@ -42,6 +42,8 @@ public class Qgis3SymbolTypeCodeBuilder implements SymbolTypeCodeBuilder {
         if (configFile == null) {
             throw new Exception("configuration file is null");
         }
+        
+        //log.info(configFile.getAbsolutePath());
                
         // Find all Rules first. Then process them to find the rule name and
         // the type code value.
@@ -70,6 +72,7 @@ public class Qgis3SymbolTypeCodeBuilder implements SymbolTypeCodeBuilder {
             SimpleRule simpleRule = evaluateRule(nodes.item(i));
             String typeCodeValue = simpleRule.getTypeCodeValue();            
             String ruleName = URLEncoder.encode(simpleRule.getRuleName(), "UTF-8");
+            //log.info(ruleName);
             
             String requestUrl = legendGraphicUrl + "&RULE=" + ruleName;
             log.debug(requestUrl);
