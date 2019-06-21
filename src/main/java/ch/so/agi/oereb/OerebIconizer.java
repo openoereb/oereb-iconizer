@@ -82,6 +82,7 @@ public class OerebIconizer {
 
         try {
             //pstmt = conn.prepareStatement(updateSql);
+            int count = 0;
             for (LegendEntry entry : legendEntries) {
                 log.info("TypeCode: " + entry.getTypeCode());
                 log.info("LegendText: " + entry.getLegendText());
@@ -97,13 +98,12 @@ public class OerebIconizer {
                 String sql = "UPDATE " + dbQTable + " SET " + symbolAttrName + " = decode('"+base64Encoded+"', 'base64'), " + legendTextAttrName + " = '"+entry.getLegendText()+"' WHERE " + typeCodeAttrName + " = '"+entry.getTypeCode()+"';";
                 log.info(sql);
                 
-                stmt.execute(sql);
+                int c = stmt.executeUpdate(sql);
+                count = count + c;
                 //conn.commit();
                 
                 //pstmt.setBytes(1, symbolInByte);
- 
                 //pstmt.setString(2, entry.getLegendText());
-                
                 //pstmt.setString(3, entry.getTypeCode());
             }
             
@@ -116,8 +116,7 @@ public class OerebIconizer {
             
             conn.close();
             
-//            return count;
-            return 1;
+            return count;
         } catch (Exception e) {
             log.error(e.getMessage());
             throw new Exception(e);
