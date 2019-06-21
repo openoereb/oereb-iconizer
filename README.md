@@ -23,7 +23,7 @@ Es dürfen nicht mehr Symbole in der Datenbank nachgeführt werden als wirklich 
 
 Artcode-Wert muss eindeutig sein.
 
-Gemeindeweise Legende wird so wohl nicht funktionieren resp. wurde nicht durchgedacht.
+Die Möglichkeit von gemeindeweisen Legenden wurde konzeptionell nicht berücksichtigt.
 
 ## Betriebsdokumentation
 Bei jedem Git-Push wird mittels Travis ein Jar-Datei neu gebildet und als `oereb-iconizer-1.0.(Versionsnummer).jar` auf Bintray/jcenter bereitgestellt.
