@@ -10,10 +10,13 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 
 import javax.imageio.ImageIO;
+import javax.xml.bind.DatatypeConverter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,12 +76,12 @@ public class OerebIconizer {
     public int updateSymbols(List<LegendEntry> legendEntries, String jdbcUrl, String dbUsr, String dbPwd, String dbQTable, String typeCodeAttrName, String symbolAttrName, String legendTextAttrName) throws Exception {
         Connection conn = getDbConnection(jdbcUrl, dbUsr, dbPwd);
         
-        PreparedStatement pstmt = null;
+        //PreparedStatement pstmt = null;
         String updateSql = "UPDATE " + dbQTable + " SET " + symbolAttrName + " = ?, " + legendTextAttrName + " = ? WHERE " + typeCodeAttrName + " = ?;";
         log.info(updateSql);
 
         try {
-            pstmt = conn.prepareStatement(updateSql);
+            //pstmt = conn.prepareStatement(updateSql);
             for (LegendEntry entry : legendEntries) {
                 log.info("TypeCode: " + entry.getTypeCode());
                 log.info("LegendText: " + entry.getLegendText());
@@ -87,22 +90,34 @@ public class OerebIconizer {
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 ImageIO.write(entry.getSymbol(), "png", baos);
                 byte[] symbolInByte = baos.toByteArray();
-                pstmt.setBytes(1, symbolInByte);
- 
-                pstmt.setString(2, entry.getLegendText());
+                String base64Encoded = Base64.getEncoder().encodeToString(symbolInByte);
                 
-                pstmt.setString(3, entry.getTypeCode());
+                Statement stmt = conn.createStatement();
+                
+                String sql = "UPDATE " + dbQTable + " SET " + symbolAttrName + " = decode('"+base64Encoded+"', 'base64'), " + legendTextAttrName + " = '"+entry.getLegendText()+"' WHERE " + typeCodeAttrName + " = '"+entry.getTypeCode()+"';";
+                log.info(sql);
+                
+                stmt.execute(sql);
+                //conn.commit();
+                
+                //pstmt.setBytes(1, symbolInByte);
+ 
+                //pstmt.setString(2, entry.getLegendText());
+                
+                //pstmt.setString(3, entry.getTypeCode());
             }
             
-            int count = pstmt.executeUpdate();
+            //int count = pstmt.executeUpdate();
+            //log.info("count: " + count);
             
-            if (pstmt != null) {
-                pstmt.close();
-            }
+            //if (pstmt != null) {
+            //    pstmt.close();
+            //}
             
             conn.close();
             
-            return count;
+//            return count;
+            return 1;
         } catch (Exception e) {
             log.error(e.getMessage());
             throw new Exception(e);

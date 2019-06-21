@@ -190,9 +190,16 @@ public class OerebIconizerTest {
             
             assertEquals(typeCode, rs.getString(1));
             
+            System.out.println(rs.getBytes(2));
+            
             // TODO: Compare images: Is there a smarter approach?
             ByteArrayInputStream bis = new ByteArrayInputStream(rs.getBytes(2));
             BufferedImage bim = ImageIO.read(bis);
+            
+            File outputfile = new File("/Users/stefan/tmp/image.png");
+            ImageIO.write(bim, "png", outputfile);
+
+            
             assertEquals(ImageIO.read(symbolFile).getHeight(), bim.getHeight());
             assertEquals(ImageIO.read(symbolFile).getWidth(), bim.getWidth());
             assertEquals(ImageIO.read(symbolFile).isAlphaPremultiplied(), bim.isAlphaPremultiplied());
