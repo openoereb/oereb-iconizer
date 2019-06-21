@@ -15,7 +15,8 @@ dependencies {
     implementation 'org.slf4j:slf4j-simple:1.7.26'
     implementation 'org.apache.httpcomponents:httpclient:4.5.6'
     implementation 'commons-io:commons-io:2.6'
-
+    runtime 'org.postgresql:postgresql:42.2.5'
+    
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.4.1'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.4.1'
     testImplementation 'org.testcontainers:testcontainers:1.10.7'
