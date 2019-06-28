@@ -33,8 +33,18 @@ group = 'ch.so.agi.oereb'
 test {
     testLogging.showStandardStreams = true
     testLogging.exceptionFormat = 'full'
-    useJUnitPlatform {}
-    failFast = true
+    useJUnitPlatform {
+        excludeTags 'live'
+    }
+    failFast = true    
+}
+
+task liveTest(type: Test, dependsOn: [compileJava, compileTestJava]) {
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+    description = 'Runs all unit tests with dependency to a live component (e.g. wms).'
+    useJUnitPlatform {
+        includeTags 'live'
+    }
 }
 
 // Bintray / jcenter

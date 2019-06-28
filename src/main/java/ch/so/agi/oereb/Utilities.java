@@ -11,6 +11,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Date;
 
 import javax.imageio.ImageIO;
 
@@ -65,7 +66,7 @@ public class Utilities {
      * @throws Exception
      */
     public static BufferedImage getRemoteImage(String url) throws Exception {
-        try {
+        try {            
             CloseableHttpClient httpclient = HttpClients.custom()
                     .setRedirectStrategy(new LaxRedirectStrategy()) // adds HTTP REDIRECT support to GET and POST methods 
                     .build();
@@ -74,6 +75,9 @@ public class Utilities {
             
             InputStream inputStream = response.getEntity().getContent();
             BufferedImage image = ImageIO.read(inputStream);
+
+//            File outputfile = new File("/Users/stefan/tmp/foo"+new Date().getTime() + ".png");
+//            ImageIO.write(image, "png", outputfile);
 
             // force 3 band image
             BufferedImage fixedImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);

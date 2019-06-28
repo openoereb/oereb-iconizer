@@ -23,6 +23,7 @@ import java.util.Map;
 
 import javax.imageio.ImageIO;
 
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.Logger;
@@ -56,6 +57,38 @@ public class OerebIconizerTest {
     
     // TODO another approach: postgresqlContainer.addFileSystemBind(scriptsPath + File.separator + "create.sh", "/docker-entrypoint-initdb.d/00_create.sh", BindMode.READ_ONLY);
 
+    @Tag("live")
+    @Test
+    public void cantonGlarusToDisk_Ok(@TempDir Path tempDir) throws Exception {
+        String directory = tempDir.toFile().getAbsolutePath();
+//        String directory = "/Users/stefan/tmp/";
+        log.info(directory);
+
+        String getStylesRequest = "https://wms.geo.gl.ch/?request=GetStyles&srs=EPSG:2056&LAYERS=ch.gl.inlandwaters.oereb_grundwasserschutzzonen&service=WMS&version=1.3.0";
+//        String getStylesRequest = "https://wms.geo.gl.ch/?request=GetStyles&srs=EPSG:2056&LAYERS=ch.gl.planning.np-1632_grundnutzung-zonenflaeche&service=WMS&version=1.3.0";
+        log.info(getStylesRequest);
+
+        String getLegendGraphicRequest = "https://wms.geo.gl.ch/?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetLegendGraphic&LAYER=ch.gl.inlandwaters.oereb_grundwasserschutzzonen&FORMAT=image/png&STYLE=default&SLD_VERSION=1.1.0&RULELABEL=false&LAYERTITLE=false&HEIGHT=35&WIDTH=70&SYMBOLHEIGHT=3&SYMBOLWIDTH=6&DPI=300";
+//        String getLegendGraphicRequest = "https://wms.geo.gl.ch/?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetLegendGraphic&LAYER=ch.gl.planning.np-1632_grundnutzung-zonenflaeche&FORMAT=image/png&STYLE=default&SLD_VERSION=1.1.0&RULELABEL=false&LAYERTITLE=false&HEIGHT=35&WIDTH=70&SYMBOLHEIGHT=3&SYMBOLWIDTH=6&DPI=300";
+        log.info(getLegendGraphicRequest);
+
+        OerebIconizer iconizer = new OerebIconizer();
+        List<LegendEntry> legendEntries = iconizer.getSymbolsQgis3(getStylesRequest, getLegendGraphicRequest);
+        
+        assertEquals(3, legendEntries.size());
+    
+        iconizer.saveSymbolsToDisk(legendEntries, directory);
+        
+        File symbolFile = new File(directory + "S1.png");
+        
+        log.info(String.valueOf(ImageIO.read(symbolFile).getHeight()));
+        log.info(String.valueOf(ImageIO.read(symbolFile).getWidth()));
+        
+        assertEquals(35, ImageIO.read(symbolFile).getHeight());
+        assertEquals(70, ImageIO.read(symbolFile).getWidth());
+    }
+    
+    
     @Test
     public void getTypeCodeSymbols_Ok() throws Exception {
         String ipAddress = qgis.getContainerIpAddress();
