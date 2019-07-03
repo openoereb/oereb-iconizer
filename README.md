@@ -19,8 +19,6 @@ Die Herstellung der einzelnen Symbole scheint bei der Umsetzung des ÖREB-Katast
 Das Herstellen der einzelnen Symbole und das Speichern in der Datenbank ist in zwei Schritte/Methoden unterteilt, so besteht die Möglichkeit für das Herstellen der Symbole durch das Implementieren eines Interfaces andere WMS-Server zu unterstützen. Zum jetzigen Zeitpunkt gibt es eine Implementierung für QGIS-3.4.
 
 ### Einschränkungen
-Es dürfen nicht mehr Symbole in der Datenbank nachgeführt werden als wirklich bereits Records vorhanden sind.
-
 Artcode-Wert muss eindeutig sein.
 
 Die Möglichkeit von gemeindeweisen Legenden wurde konzeptionell nicht berücksichtigt.
@@ -32,6 +30,19 @@ Bei jedem Git-Push wird mittels Travis ein Jar-Datei neu gebildet und als `oereb
 Das Herstellen der Symbole und das Speichern dieser in der Datenbank ist in zwei Methoden aufgeteilt. Die erste Methode implementiert das Interface `SymbolTypeCodeBuilder`. Der Rückgabewert muss ein Map (Artcode <-> Symbol) sein. Wie man diese Map herstellt ist völlig offen. Im konkreten Fall für QGIS3 resp. für das Amt für Geoinformation Kanton Solothurn wird zuerst ein WMS-`GetStyles`-Request gemacht, um herauszufinden welche Symbole überhaupt vorhanden sind. Aufgrund dieses Dokumentes muss es auch möglich sein die Beziehung zwischen Artcode und Symbol herstellen zu können. Es muss aber nicht zwingend eine `PropertyIsEqualTo`-Rule sein (wie in der QGIS3-Implementierung). Sondern kann "irgendwie" sein, solange die Maschine weiss, wie sie jetzt die Beziehung zwischen Symbole und Artcode herstellen kann.
 
 Die zweite Methode speichert das Symbol in der Datenbank mittels UPDATE-Query.
+
+## Test-URL
+
+```
+https://wms.geo.gl.ch/?content=None&request=GetStyles&srs=EPSG:2056&LAYERS=ch.gl.inlandwaters.oereb_grundwasserschutzzonen&service=WMS&version=1.3.0
+
+https://wms.geo.gl.ch/?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetLegendGraphic&LAYER=ch.gl.inlandwaters.oereb_grundwasserschutzzonen&FORMAT=image/png&STYLE=default&SLD_VERSION=1.1.0&RULELABEL=false&LAYERTITLE=false&HEIGHT=35&WIDTH=70&SYMBOLHEIGHT=3&SYMBOLWIDTH=6&DPI=300
+```
+
+```
+./bin/oereb-iconizer --downloadDir /Users/stefan/tmp/ --sldUrl "https://wms.geo.gl.ch/?content=None&request=GetStyles&srs=EPSG:2056&LAYERS=ch.gl.inlandwaters.oereb_grundwasserschutzzonen&service=WMS&version=1.3.0" --legendGraphicUrl "https://wms.geo.gl.ch/?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetLegendGraphic&LAYER=ch.gl.inlandwaters.oereb_grundwasserschutzzonen&FORMAT=image/png&STYLE=default&SLD_VERSION=1.1.0&RULELABEL=false&LAYERTITLE=false&HEIGHT=35&WIDTH=70&SYMBOLHEIGHT=3&SYMBOLWIDTH=6&DPI=300"
+```
+
 
 ## TODO
 - more tests...
