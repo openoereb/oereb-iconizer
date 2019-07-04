@@ -103,6 +103,8 @@ publishing {
             artifact javadocJar {
                 classifier "javadoc"
             }
+            artifact distZip
+            
             groupId project.group
             artifactId 'oereb-iconizer'
             version project.version
