@@ -107,8 +107,7 @@ public class OerebIconizer {
                 int c = stmt.executeUpdate(sql);
                 count = count + c;
             }
-            log.error("***************");
-            log.error("Number of updated records: " + String.valueOf(count));
+            log.info("Number of updated records: " + String.valueOf(count));
             conn.close();
             
             return count;
