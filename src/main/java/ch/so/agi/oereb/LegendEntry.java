@@ -5,6 +5,7 @@ import java.awt.image.BufferedImage;
 public class LegendEntry {    
     private BufferedImage symbol;
     private String typeCode;
+    private String typeCodeList;
     private String legendText;
 
     public BufferedImage getSymbol() {
@@ -18,6 +19,12 @@ public class LegendEntry {
     }
     public void setTypeCode(String typeCode) {
         this.typeCode = typeCode;
+    }
+    public String getTypeCodeList() {
+        return typeCodeList;
+    }
+    public void setTypeCodeList(String typeCodeList) {
+        this.typeCodeList = typeCodeList;
     }
     public String getLegendText() {
         return legendText;

@@ -139,6 +139,77 @@ public class OerebIconizerTest {
     }
     
     @Test
+    public void updateSymbolWithCommunalTypeCode_Ok() throws Exception {
+        String schemaName = "insertsymbols".toLowerCase();
+        String tableName = "test".toLowerCase();
+        String dbQTable = schemaName+"."+tableName;
+        String typeCodeAttrName = "artcode";
+        String symbolAttrName = "symbol";
+
+        Connection con = null;
+        
+        String typeCode = "N390";
+        String typeCodeCommunal = "3901";
+        File symbolFile = new File("src/test/data/weitere_schutzzone_ausserhalb_bauzone.png");
+
+        try {
+            // Prepare database: create table.
+            con = connect(postgres);
+            createOrReplaceSchema(con, schemaName);
+            
+            Statement s1 = con.createStatement();
+            s1.execute("CREATE TABLE " + dbQTable + "(t_id SERIAL, artcode TEXT, symbol BYTEA, legendetext TEXT);");
+            s1.execute("INSERT INTO " + dbQTable + "(artcode) VALUES('" + typeCodeCommunal +"');");
+            s1.close();
+            con.commit();
+            closeConnection(con);
+                        
+            // Insert typecode and symbol with the iconizer.
+            List<LegendEntry> legendEntries = new ArrayList<LegendEntry>();
+            LegendEntry entry = new LegendEntry();
+            entry.setTypeCode(typeCode);
+            entry.setSymbol(ImageIO.read(symbolFile));
+            legendEntries.add(entry);
+                        
+            OerebIconizer iconizer = new OerebIconizer();
+            int count = iconizer.updateSymbols(legendEntries, postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword(), dbQTable, typeCodeAttrName, symbolAttrName, null, false);
+
+            
+            // Check if everything is ok.
+            con = connect(postgres);
+            Statement s2 = con.createStatement();
+            ResultSet rs = s2.executeQuery("SELECT artcode, symbol, legendetext FROM " + dbQTable);
+            
+            if(!rs.next()) {
+                fail();
+            }
+            
+            assertEquals(1, count);
+            assertEquals(typeCodeCommunal, rs.getString(1));
+                      
+            // TODO: Compare images: Is there a smarter approach?
+            ByteArrayInputStream bis = new ByteArrayInputStream(rs.getBytes(2));
+            BufferedImage bim = ImageIO.read(bis);            
+            assertEquals(ImageIO.read(symbolFile).getHeight(), bim.getHeight());
+            assertEquals(ImageIO.read(symbolFile).getWidth(), bim.getWidth());
+            assertEquals(ImageIO.read(symbolFile).isAlphaPremultiplied(), bim.isAlphaPremultiplied());
+            
+            assertEquals(null, rs.getString(3));
+         
+            if(rs.next()) {
+                fail();
+            }
+            
+            rs.close();
+            s2.close();
+        } finally {
+            closeConnection(con);
+        }        
+        
+    }
+    
+    
+    @Test
     public void updateSymbol_Ok() throws Exception {
         String schemaName = "insertsymbols".toLowerCase();
         String tableName = "test".toLowerCase();
@@ -174,7 +245,7 @@ public class OerebIconizerTest {
             legendEntries.add(entry);
                         
             OerebIconizer iconizer = new OerebIconizer();
-            int count = iconizer.updateSymbols(legendEntries, postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword(), dbQTable, typeCodeAttrName, symbolAttrName, legendTextAttrName);
+            int count = iconizer.updateSymbols(legendEntries, postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword(), dbQTable, typeCodeAttrName, symbolAttrName, legendTextAttrName, false);
 
             
             // Check if everything is ok.
@@ -256,7 +327,7 @@ public class OerebIconizerTest {
             legendEntries.add(entryExisting);
 
             OerebIconizer iconizer = new OerebIconizer();
-            int count = iconizer.updateSymbols(legendEntries, postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword(), dbQTable, typeCodeAttrName, symbolAttrName, legendTextAttrName);
+            int count = iconizer.updateSymbols(legendEntries, postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword(), dbQTable, typeCodeAttrName, symbolAttrName, legendTextAttrName, false);
 
             //System.out.println(count);
             

@@ -88,14 +88,15 @@ public class Main {
         
         if (downloadDir == null) {
             if (dbhost == null || dbdatabase == null || dbport == null || dbusr == null || dbpwd == null 
-                    || dbQTable == null || typeCodeAttrName == null || symbolAttrName == null || legendTextAttrName == null) {
+                    //|| dbQTable == null || typeCodeAttrName == null || symbolAttrName == null || legendTextAttrName == null) {
+                    || dbQTable == null || typeCodeAttrName == null || symbolAttrName == null) {
                 log.error("Missing database, table oder attribute parameters.");
                 System.exit(2);
             } else {
                 OerebIconizer iconizer = new OerebIconizer();
                 List<LegendEntry> legendEntries =  iconizer.getSymbolsQgis3(sldUrl, legendGraphicUrl);
                 String jdbcUrl = "jdbc:postgresql://" + dbhost + ":" + dbport + "/" + dbdatabase;
-                iconizer.updateSymbols(legendEntries, jdbcUrl, dbusr, dbpwd, dbQTable, typeCodeAttrName, symbolAttrName, legendTextAttrName);
+                iconizer.updateSymbols(legendEntries, jdbcUrl, dbusr, dbpwd, dbQTable, typeCodeAttrName, symbolAttrName, legendTextAttrName, false); // TODO: expose last paramater
             }
         }
         

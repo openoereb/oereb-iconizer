@@ -37,12 +37,6 @@ public class OerebIconizer {
         List<LegendEntry> legendEntries = styleConfigBuilder.build();
         return legendEntries;
     }
-
-//    public Map<String,BufferedImage> getSymbolsQgis3V1(String configFileName, String legendGraphicUrl) throws Exception {                
-//        SymbolTypeCodeBuilder styleConfigBuilder = new Qgis3SymbolTypeCodeBuilder(configFileName, legendGraphicUrl);
-//        Map<String,BufferedImage> typeCodeSymbols = styleConfigBuilder.build();
-//        return typeCodeSymbols;
-//    }
     
     /**
      * Saves symbols to disk. The type code is the file name.
@@ -70,15 +64,16 @@ public class OerebIconizer {
      * @param dbQTable Qualified table name.
      * @param typeCodeAttrName Name of the type code attribute in the database.
      * @param symbolAttrName Name of the symbol attribute in the database.
-     * @param legendTextAttrName Name of the legend text attribute in the database.
+     * @param legendTextAttrName Name of the legend text attribute in the database. If null it will not be updated.
+     * @param useCommunalTypeCodes Highly Solothurn specific. If true the update query will substring type code in the where clause.
      * @throws Exception
      */
-    public int updateSymbols(List<LegendEntry> legendEntries, String jdbcUrl, String dbUsr, String dbPwd, String dbQTable, String typeCodeAttrName, String symbolAttrName, String legendTextAttrName) throws Exception {
+    public int updateSymbols(List<LegendEntry> legendEntries, String jdbcUrl, String dbUsr, String dbPwd, String dbQTable, String typeCodeAttrName, String symbolAttrName, String legendTextAttrName, boolean useCommunalTypeCodes) throws Exception {
         Connection conn = getDbConnection(jdbcUrl, dbUsr, dbPwd);
         
         //PreparedStatement pstmt = null;
-        String updateSql = "UPDATE " + dbQTable + " SET " + symbolAttrName + " = ?, " + legendTextAttrName + " = ? WHERE " + typeCodeAttrName + " = ?;";
-        log.info(updateSql);
+        //String updateSql = "UPDATE " + dbQTable + " SET " + symbolAttrName + " = ?, " + legendTextAttrName + " = ? WHERE " + typeCodeAttrName + " = ?;";
+        //log.info(updateSql);
 
         try {
             //pstmt = conn.prepareStatement(updateSql);
@@ -95,25 +90,25 @@ public class OerebIconizer {
                 
                 Statement stmt = conn.createStatement();
                 
-                String sql = "UPDATE " + dbQTable + " SET " + symbolAttrName + " = decode('"+base64Encoded+"', 'base64'), " + legendTextAttrName + " = '"+entry.getLegendText()+"' WHERE " + typeCodeAttrName + " = '"+entry.getTypeCode()+"';";
+                // TODO: substring AND legendText update variant is missing
+                String sql = "";
+                if (legendTextAttrName == null) {
+                    if (useCommunalTypeCodes) {
+                        sql = "UPDATE " + dbQTable + " SET " + symbolAttrName + " = decode('"+base64Encoded+"', 'base64') WHERE " + typeCodeAttrName + " = '"+entry.getTypeCode()+"';";
+                    } else {
+                        sql = "UPDATE " + dbQTable + " SET " + symbolAttrName + " = decode('"+base64Encoded+"', 'base64') WHERE substring(" + typeCodeAttrName + ", 1, 3) = '"+entry.getTypeCode().substring(1, 4) +"';";                        
+                    }
+                }
+                else {
+                    sql = "UPDATE " + dbQTable + " SET " + symbolAttrName + " = decode('"+base64Encoded+"', 'base64'), " + legendTextAttrName + " = '"+entry.getLegendText()+"' WHERE " + typeCodeAttrName + " = '"+entry.getTypeCode()+"';";
+                }
                 log.info(sql);
                 
                 int c = stmt.executeUpdate(sql);
                 count = count + c;
-                //conn.commit();
-                
-                //pstmt.setBytes(1, symbolInByte);
-                //pstmt.setString(2, entry.getLegendText());
-                //pstmt.setString(3, entry.getTypeCode());
             }
-            
-            //int count = pstmt.executeUpdate();
-            //log.info("count: " + count);
-            
-            //if (pstmt != null) {
-            //    pstmt.close();
-            //}
-            
+            log.error("***************");
+            log.error("Number of updated records: " + String.valueOf(count));
             conn.close();
             
             return count;
@@ -122,7 +117,7 @@ public class OerebIconizer {
             throw new Exception(e);
         }
     }
-        
+            
     private Connection getDbConnection(String jdbcUrl, String dbUsr, String dbPwd) {
         Connection conn = null;
 
