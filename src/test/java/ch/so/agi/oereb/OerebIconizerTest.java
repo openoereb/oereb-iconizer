@@ -172,7 +172,7 @@ public class OerebIconizerTest {
             legendEntries.add(entry);
                         
             OerebIconizer iconizer = new OerebIconizer();
-            int count = iconizer.updateSymbols(legendEntries, postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword(), dbQTable, typeCodeAttrName, symbolAttrName, null, false);
+            int count = iconizer.updateSymbols(legendEntries, postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword(), dbQTable, typeCodeAttrName, symbolAttrName, null, true);
 
             
             // Check if everything is ok.

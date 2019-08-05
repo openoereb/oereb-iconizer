@@ -94,9 +94,9 @@ public class OerebIconizer {
                 String sql = "";
                 if (legendTextAttrName == null) {
                     if (useCommunalTypeCodes) {
-                        sql = "UPDATE " + dbQTable + " SET " + symbolAttrName + " = decode('"+base64Encoded+"', 'base64') WHERE " + typeCodeAttrName + " = '"+entry.getTypeCode()+"';";
+                        sql = "UPDATE " + dbQTable + " SET " + symbolAttrName + " = decode('"+base64Encoded+"', 'base64') WHERE substring(" + typeCodeAttrName + ", 1, 3) = '"+entry.getTypeCode().substring(1, 4) +"';";                                                
                     } else {
-                        sql = "UPDATE " + dbQTable + " SET " + symbolAttrName + " = decode('"+base64Encoded+"', 'base64') WHERE substring(" + typeCodeAttrName + ", 1, 3) = '"+entry.getTypeCode().substring(1, 4) +"';";                        
+                        sql = "UPDATE " + dbQTable + " SET " + symbolAttrName + " = decode('"+base64Encoded+"', 'base64') WHERE " + typeCodeAttrName + " = '"+entry.getTypeCode()+"';";                    
                     }
                 }
                 else {
