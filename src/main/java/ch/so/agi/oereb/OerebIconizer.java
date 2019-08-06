@@ -32,11 +32,25 @@ public class OerebIconizer {
      * The RULE parameter is added dynamically. The LAYER parameter must be included.
      * @throws Exception
      */
-    public List<LegendEntry> getSymbolsQgis3(String configFileName, String legendGraphicUrl) throws Exception {
-        SymbolTypeCodeBuilder styleConfigBuilder = new Qgis3SymbolTypeCodeBuilder(configFileName, legendGraphicUrl);
+    public List<LegendEntry> getSymbolsQgis3Simple(String configFileName, String legendGraphicUrl) throws Exception {
+        SymbolTypeCodeBuilder styleConfigBuilder = new Qgis3SimpleSymbolTypeCodeBuilder(configFileName, legendGraphicUrl);
         List<LegendEntry> legendEntries = styleConfigBuilder.build();
         return legendEntries;
     }
+    
+    /**
+     * Gets all the symbols and the according type code from a QGIS 3 wms server.
+     * 
+     * @param configFileName GetStyles request url (= SLD file).
+     * @param legendGraphicUrl GetLegendGraphic request url with the vendor specific parameters for single symbol support. 
+     * The RULE parameter is added dynamically. The LAYER parameter must be included.
+     * @throws Exception
+     */
+    public List<LegendEntry> getSymbolsQgis3Substring(String configFileName, String legendGraphicUrl) throws Exception {
+        SymbolTypeCodeBuilder styleConfigBuilder = new Qgis3SubstringSymbolTypeCodeBuilder(configFileName, legendGraphicUrl);
+        List<LegendEntry> legendEntries = styleConfigBuilder.build();
+        return legendEntries;
+    }    
     
     /**
      * Saves symbols to disk. The type code is the file name.
@@ -94,7 +108,7 @@ public class OerebIconizer {
                 String sql = "";
                 if (legendTextAttrName == null) {
                     if (useCommunalTypeCodes) {
-                        sql = "UPDATE " + dbQTable + " SET " + symbolAttrName + " = decode('"+base64Encoded+"', 'base64') WHERE substring(" + typeCodeAttrName + ", 1, 3) = '"+entry.getTypeCode().substring(1, 4) +"';";                                                
+                        sql = "UPDATE " + dbQTable + " SET " + symbolAttrName + " = decode('"+base64Encoded+"', 'base64') WHERE substring(" + typeCodeAttrName + ", 1, 3) = '"+entry.getTypeCode() +"';";                                                
                     } else {
                         sql = "UPDATE " + dbQTable + " SET " + symbolAttrName + " = decode('"+base64Encoded+"', 'base64') WHERE " + typeCodeAttrName + " = '"+entry.getTypeCode()+"';";                    
                     }

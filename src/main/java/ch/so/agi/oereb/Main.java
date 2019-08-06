@@ -94,7 +94,7 @@ public class Main {
                 System.exit(2);
             } else {
                 OerebIconizer iconizer = new OerebIconizer();
-                List<LegendEntry> legendEntries =  iconizer.getSymbolsQgis3(sldUrl, legendGraphicUrl);
+                List<LegendEntry> legendEntries =  iconizer.getSymbolsQgis3Simple(sldUrl, legendGraphicUrl);
                 String jdbcUrl = "jdbc:postgresql://" + dbhost + ":" + dbport + "/" + dbdatabase;
                 iconizer.updateSymbols(legendEntries, jdbcUrl, dbusr, dbpwd, dbQTable, typeCodeAttrName, symbolAttrName, legendTextAttrName, false); // TODO: expose last paramater
             }
@@ -102,7 +102,7 @@ public class Main {
         
         if (downloadDir != null) {
             OerebIconizer iconizer = new OerebIconizer();
-            List<LegendEntry> legendEntries =  iconizer.getSymbolsQgis3(sldUrl, legendGraphicUrl);
+            List<LegendEntry> legendEntries =  iconizer.getSymbolsQgis3Simple(sldUrl, legendGraphicUrl);
             iconizer.saveSymbolsToDisk(legendEntries, downloadDir);
             return;
         }

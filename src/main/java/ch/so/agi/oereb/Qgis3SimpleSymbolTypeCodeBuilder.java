@@ -23,13 +23,13 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 
-public class Qgis3SymbolTypeCodeBuilder implements SymbolTypeCodeBuilder {
+public class Qgis3SimpleSymbolTypeCodeBuilder implements SymbolTypeCodeBuilder {
     Logger log = LoggerFactory.getLogger(this.getClass());
 
     private String configFileName = null;
     String legendGraphicUrl = null;
     
-    public Qgis3SymbolTypeCodeBuilder(String configFileName, String legendGraphicUrl) {
+    public Qgis3SimpleSymbolTypeCodeBuilder(String configFileName, String legendGraphicUrl) {
         this.configFileName = configFileName;
         this.legendGraphicUrl = legendGraphicUrl;
     }
