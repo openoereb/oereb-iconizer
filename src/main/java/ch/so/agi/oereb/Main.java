@@ -17,6 +17,8 @@ public class Main {
     private static String legendGraphicUrl;
     private static String dbQTable;
     private static String typeCodeAttrName;
+    private static String typeCodeListAttrName;
+    private static String typeCodeListValue;
     private static String symbolAttrName;
     private static String legendTextAttrName;
     private static String downloadDir;
@@ -53,6 +55,12 @@ public class Main {
             } else if (arg.equals("--typeCodeAttrName")) {
                 argi++;
                 typeCodeAttrName = args[argi];
+            } else if (arg.equals("--typeCodeListAttrName")) {
+                argi++;
+                typeCodeListAttrName = args[argi];
+            } else if (arg.equals("--typeCodeListValue")) {
+                argi++;
+                typeCodeListValue = args[argi];
             } else if (arg.equals("--symbolAttrName")) {
                 argi++;
                 symbolAttrName = args[argi];
@@ -73,6 +81,8 @@ public class Main {
                 System.err.println("--legendGraphicUrl      GetLegendGraphic request incl. RULELABEL, LAYERTITLE, HEIGHT, WIDTH, SYMBOLHEIGHT, SYMBOLWIDTH and DPI parameter.");
                 System.err.println("--dbQTable              Qualified table name.");
                 System.err.println("--typeCodeAttrName      Name of type code attribute in table.");
+                System.err.println("--typeCodeListAttrName  Name of the type code list attribute in table.");
+                System.err.println("--typeCodeListValue     Name of the type code list.");
                 System.err.println("--symbolAttrName        Name of symbol attribute in table.");
                 System.err.println("--legendTextAttrName    Name of legend text entry in table.");
                 System.err.println("--downloadDir           Download directory.");
@@ -96,7 +106,7 @@ public class Main {
                 OerebIconizer iconizer = new OerebIconizer();
                 List<LegendEntry> legendEntries =  iconizer.getSymbolsQgis3Simple(sldUrl, legendGraphicUrl);
                 String jdbcUrl = "jdbc:postgresql://" + dbhost + ":" + dbport + "/" + dbdatabase;
-                iconizer.updateSymbols(legendEntries, jdbcUrl, dbusr, dbpwd, dbQTable, typeCodeAttrName, symbolAttrName, legendTextAttrName, false); // TODO: expose last paramater
+                iconizer.updateSymbols(legendEntries, jdbcUrl, dbusr, dbpwd, dbQTable, typeCodeAttrName, typeCodeListAttrName, typeCodeListValue, symbolAttrName, legendTextAttrName, false); // TODO: expose last paramater
             }
         }
         

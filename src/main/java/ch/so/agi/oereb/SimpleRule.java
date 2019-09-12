@@ -3,6 +3,7 @@ package ch.so.agi.oereb;
 public class SimpleRule {
     private String ruleName;
     private String typeCodeValue;
+    private String geometryType;
     
     public SimpleRule(String ruleName, String typeCodeValue) {
         this.ruleName = ruleName;

@@ -64,12 +64,14 @@ public class OerebIconizer {
      * @param dbPwd Password
      * @param dbQTable Qualified table name.
      * @param typeCodeAttrName Name of the type code attribute in the database.
+     * @param typeCodeListAttrName Name of the type code list attribute in the database.
+     * @param typeCodeListValue Name of the type code list.
      * @param symbolAttrName Name of the symbol attribute in the database.
      * @param legendTextAttrName Name of the legend text attribute in the database. If null it will not be updated.
      * @param useCommunalTypeCodes Highly Solothurn specific. If true the update query will substring type code in the where clause.
      * @throws Exception
      */
-    public int updateSymbols(List<LegendEntry> legendEntries, String jdbcUrl, String dbUsr, String dbPwd, String dbQTable, String typeCodeAttrName, String symbolAttrName, String legendTextAttrName, boolean useCommunalTypeCodes) throws Exception {
+    public int updateSymbols(List<LegendEntry> legendEntries, String jdbcUrl, String dbUsr, String dbPwd, String dbQTable, String typeCodeAttrName, String typeCodeListAttrName, String typeCodeListValue, String symbolAttrName, String legendTextAttrName, boolean useCommunalTypeCodes) throws Exception {
         Connection conn = getDbConnection(jdbcUrl, dbUsr, dbPwd);
         
         //PreparedStatement pstmt = null;
@@ -83,6 +85,7 @@ public class OerebIconizer {
                 log.info("TypeCode: " + entry.getTypeCode());
                 log.info("LegendText: " + entry.getLegendText());
                 log.info("Symbol: " + entry.getSymbol().toString());
+                log.info("GeometryType: " + entry.getGeometryType());
                 
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 ImageIO.write(entry.getSymbol(), "png", baos);
@@ -91,17 +94,17 @@ public class OerebIconizer {
                 
                 Statement stmt = conn.createStatement();
                 
-                // TODO: substring AND legendText update variant is missing
+                // TODO: substring AND legendText update variant is missing (and others...)
                 String sql = "";
                 if (legendTextAttrName == null) {
                     if (useCommunalTypeCodes) {
-                        sql = "UPDATE " + dbQTable + " SET " + symbolAttrName + " = decode('"+base64Encoded+"', 'base64') WHERE substring(" + typeCodeAttrName + ", 1, 3) = '"+entry.getTypeCode() +"';";                                                
+                        sql = "UPDATE " + dbQTable + " SET " + symbolAttrName + " = decode('"+base64Encoded+"', 'base64') WHERE substring(" + typeCodeAttrName + ", 1, 3) = '"+entry.getTypeCode() +"' AND "+typeCodeListAttrName+" LIKE '"+typeCodeListValue+"%';";                                                   
                     } else {
-                        sql = "UPDATE " + dbQTable + " SET " + symbolAttrName + " = decode('"+base64Encoded+"', 'base64') WHERE " + typeCodeAttrName + " = '"+entry.getTypeCode()+"';";                    
+                        sql = "UPDATE " + dbQTable + " SET " + symbolAttrName + " = decode('"+base64Encoded+"', 'base64') WHERE " + typeCodeAttrName + " = '"+entry.getTypeCode()+"' AND "+typeCodeListAttrName+" LIKE '"+typeCodeListValue+"%';";                     
                     }
                 }
                 else {
-                    sql = "UPDATE " + dbQTable + " SET " + symbolAttrName + " = decode('"+base64Encoded+"', 'base64'), " + legendTextAttrName + " = '"+entry.getLegendText()+"' WHERE " + typeCodeAttrName + " = '"+entry.getTypeCode()+"';";
+                    sql = "UPDATE " + dbQTable + " SET " + symbolAttrName + " = decode('"+base64Encoded+"', 'base64'), " + legendTextAttrName + " = '"+entry.getLegendText()+"' WHERE " + typeCodeAttrName + " = '"+entry.getTypeCode()+"' AND "+typeCodeListAttrName+" LIKE '"+typeCodeListValue+"%';";
                 }
                 log.info(sql);
                 

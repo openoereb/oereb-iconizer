@@ -159,8 +159,8 @@ public class OerebIconizerQgis3SimpleTest {
             createOrReplaceSchema(con, schemaName);
             
             Statement s1 = con.createStatement();
-            s1.execute("CREATE TABLE " + dbQTable + "(t_id SERIAL, artcode TEXT, symbol BYTEA, legendetext TEXT);");
-            s1.execute("INSERT INTO " + dbQTable + "(artcode) VALUES('" + typeCode +"');");
+            s1.execute("CREATE TABLE " + dbQTable + "(t_id SERIAL, artcode TEXT, artcodeliste TEXT, symbol BYTEA, legendetext TEXT);");
+            s1.execute("INSERT INTO " + dbQTable + "(artcode, artcodeliste) VALUES('" + typeCode +"', 'GrundnutzungListe.2601');");
             s1.close();
             con.commit();
             closeConnection(con);
@@ -174,7 +174,7 @@ public class OerebIconizerQgis3SimpleTest {
             legendEntries.add(entry);
                         
             OerebIconizer iconizer = new OerebIconizer();
-            int count = iconizer.updateSymbols(legendEntries, postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword(), dbQTable, typeCodeAttrName, symbolAttrName, legendTextAttrName, false);
+            int count = iconizer.updateSymbols(legendEntries, postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword(), dbQTable, typeCodeAttrName, "artcodeliste", "GrundnutzungListe", symbolAttrName, legendTextAttrName, false);
 
             
             // Check if everything is ok.
@@ -234,8 +234,8 @@ public class OerebIconizerQgis3SimpleTest {
             createOrReplaceSchema(con, schemaName);
             
             Statement s1 = con.createStatement();
-            s1.execute("CREATE TABLE " + dbQTable + "(t_id SERIAL, artcode TEXT, symbol BYTEA, legendetext TEXT);");
-            s1.execute("INSERT INTO " + dbQTable + "(artcode) VALUES('" + typeCode +"');");
+            s1.execute("CREATE TABLE " + dbQTable + "(t_id SERIAL, artcode TEXT, artcodeliste TEXT, symbol BYTEA, legendetext TEXT);");
+            s1.execute("INSERT INTO " + dbQTable + "(artcode, artcodeliste) VALUES('" + typeCode +"', 'GrundnutzungListe.2601');");
             s1.close();
             con.commit();
             closeConnection(con);
@@ -256,7 +256,7 @@ public class OerebIconizerQgis3SimpleTest {
             legendEntries.add(entryExisting);
 
             OerebIconizer iconizer = new OerebIconizer();
-            int count = iconizer.updateSymbols(legendEntries, postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword(), dbQTable, typeCodeAttrName, symbolAttrName, legendTextAttrName, false);
+            int count = iconizer.updateSymbols(legendEntries, postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword(), dbQTable, typeCodeAttrName, "artcodeliste", "GrundnutzungListe", symbolAttrName, legendTextAttrName, false);
 
             //System.out.println(count);
             

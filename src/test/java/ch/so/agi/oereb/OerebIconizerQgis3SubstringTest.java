@@ -43,20 +43,20 @@ public class OerebIconizerQgis3SubstringTest {
             .waitingFor(Wait.forLogMessage(WAIT_PATTERN, 2));
 
     @Container
-    private static GenericContainer qgis = new GenericContainer("sogis/qgis-server-base:3.4")
-            .withExposedPorts(80).withClasspathResourceMapping("qgis3_substring", "/data", BindMode.READ_WRITE).waitingFor(Wait.forHttp("/"));
+    private static GenericContainer qgis = new GenericContainer("sogis/oereb-wms:e7a9ce3")
+            .withExposedPorts(80).waitingFor(Wait.forHttp("/"));
 
     @Test
     public void getTypeCodeSymbols_Ok() throws Exception {
         String ipAddress = qgis.getContainerIpAddress();
         String port = String.valueOf(qgis.getFirstMappedPort());
         
-        String getStylesRequest = "http://" + ipAddress + ":" + port + "/qgis/oereb-dummy?&SERVICE=WMS&REQUEST=GetStyles&LAYERS=ch.so.Nutzungsplanung.NutzungsplanungGrundnutzung&SLD_VERSION=1.1.0";
+        String getStylesRequest = "http://" + ipAddress + ":" + port + "/wms/oereb-symbols?SERVICE=WMS&REQUEST=GetStyles&LAYERS=ch.so.Nutzungsplanung.NutzungsplanungGrundnutzung&SLD_VERSION=1.1.0";
         log.info(getStylesRequest);
         
-        String getLegendGraphicRequest = "http://" + ipAddress + ":" + port + "/qgis/oereb-dummy?SERVICE=WMS&REQUEST=GetLegendGraphic&LAYER=ch.so.Nutzungsplanung.NutzungsplanungGrundnutzung&FORMAT=image/png&RULELABEL=false&LAYERTITLE=false&HEIGHT=35&WIDTH=70&SYMBOLHEIGHT=3&SYMBOLWIDTH=6&DPI=300";
+        String getLegendGraphicRequest = "http://" + ipAddress + ":" + port + "/wms/oereb-symbols?SERVICE=WMS&REQUEST=GetLegendGraphic&LAYER=ch.so.Nutzungsplanung.NutzungsplanungGrundnutzung&FORMAT=image/png&RULELABEL=false&LAYERTITLE=false&HEIGHT=35&WIDTH=70&SYMBOLHEIGHT=3&SYMBOLWIDTH=6&DPI=300";
         log.info(getLegendGraphicRequest);
-                
+        
         OerebIconizer iconizer = new OerebIconizer();
         List<LegendEntry> legendEntries = iconizer.getSymbolsQgis3Simple(getStylesRequest, getLegendGraphicRequest);
                
@@ -70,6 +70,102 @@ public class OerebIconizerQgis3SubstringTest {
             break;
         }    
     }
+    
+//    @Test
+//    public void getTypeCodeSymbolsGeometryType_Ok() throws Exception {
+//        String ipAddress = qgis.getContainerIpAddress();
+//        String port = String.valueOf(qgis.getFirstMappedPort());
+//        
+//        String getStylesRequest = "http://" + ipAddress + ":" + port + "/wms/oereb-symbols?SERVICE=WMS&REQUEST=GetStyles&LAYERS=ch.so.Nutzungsplanung.NutzungsplanungUeberlagernd.Flaeche&SLD_VERSION=1.1.0";
+//        log.info(getStylesRequest);
+//        
+//        String getLegendGraphicRequest = "http://" + ipAddress + ":" + port + "/wms/oereb-symbols?SERVICE=WMS&REQUEST=GetLegendGraphic&LAYER=ch.so.Nutzungsplanung.NutzungsplanungUeberlagernd.Flaeche&FORMAT=image/png&RULELABEL=false&LAYERTITLE=false&HEIGHT=35&WIDTH=70&SYMBOLHEIGHT=3&SYMBOLWIDTH=6&DPI=300";
+//        log.info(getLegendGraphicRequest);
+//        
+//        OerebIconizer iconizer = new OerebIconizer();
+//        List<LegendEntry> legendEntries = iconizer.getSymbolsQgis3Simple(getStylesRequest, getLegendGraphicRequest);
+//               
+//        assertEquals(17, legendEntries.size());
+//
+//        for (LegendEntry entry:  legendEntries) {
+//            log.info(entry.getTypeCode());
+//            BufferedImage resultImage = entry.getSymbol();
+//            assertEquals(35, resultImage.getHeight());
+//            assertEquals(70, resultImage.getWidth());
+//            break;
+//        }    
+//    }
+    
+//    @Test
+//    public void updateSymbolWithCommunalTypeCodeGeometryAware_Ok() throws Exception {
+//        String schemaName = "insertsymbols".toLowerCase();
+//        String tableName = "test".toLowerCase();
+//        String dbQTable = schemaName+"."+tableName;
+//        String typeCodeAttrName = "artcode";
+//        String symbolAttrName = "symbol";
+//
+//        Connection con = null;
+//        
+//        String typeCode = "832";
+//        String typeCodeCommunal = "8320";
+//        // Testet nich, ob das Icon richtig ist. Was natürlich in diesem speziellen Fall doof ist.
+//        // FIXME
+//        File symbolFile = new File("src/test/data/weitere_schutzzone_ausserhalb_bauzone.png");
+//
+//        try {
+//            // Prepare database: create table.
+//            con = connect(postgres);
+//            createOrReplaceSchema(con, schemaName);
+//            
+//            Statement s1 = con.createStatement();
+//            s1.execute("CREATE TABLE " + dbQTable + "(t_id SERIAL, artcode TEXT, artcodeliste TEXT, symbol BYTEA, legendetext TEXT);");
+//            s1.execute("INSERT INTO " + dbQTable + "(artcode, artcodeliste) VALUES('" + typeCodeCommunal +"', 'urn:fdc:ilismeta.interlis.ch:2017:NP_Typ_Kanton_Ueberlagernd_Flaeche.2457');");
+//            s1.close();
+//            con.commit();
+//            closeConnection(con);
+//                        
+////            // Insert typecode and symbol with the iconizer.
+////            List<LegendEntry> legendEntries = new ArrayList<LegendEntry>();
+////            LegendEntry entry = new LegendEntry();
+////            entry.setTypeCode(typeCode);
+////            entry.setSymbol(ImageIO.read(symbolFile));
+////            legendEntries.add(entry);
+////                        
+////            OerebIconizer iconizer = new OerebIconizer();
+////            int count = iconizer.updateSymbols(legendEntries, postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword(), dbQTable, typeCodeAttrName, symbolAttrName, null, true);
+////
+////            // Check if everything is ok.
+////            con = connect(postgres);
+////            Statement s2 = con.createStatement();
+////            ResultSet rs = s2.executeQuery("SELECT artcode, symbol, legendetext FROM " + dbQTable);
+////            
+////            if(!rs.next()) {
+////                fail();
+////            }
+////            
+////            assertEquals(1, count);
+////            assertEquals(typeCodeCommunal, rs.getString(1));
+////                      
+////            // TODO: Compare images: Is there a smarter approach?
+////            ByteArrayInputStream bis = new ByteArrayInputStream(rs.getBytes(2));
+////            BufferedImage bim = ImageIO.read(bis);            
+////            assertEquals(ImageIO.read(symbolFile).getHeight(), bim.getHeight());
+////            assertEquals(ImageIO.read(symbolFile).getWidth(), bim.getWidth());
+////            assertEquals(ImageIO.read(symbolFile).isAlphaPremultiplied(), bim.isAlphaPremultiplied());
+////            
+////            assertEquals(null, rs.getString(3));
+////         
+////            if(rs.next()) {
+////                fail();
+////            }
+////            
+////            rs.close();
+////            s2.close();
+//        } finally {
+//            closeConnection(con);
+//        }           
+//    }
+
     
     @Test
     public void updateSymbolWithCommunalTypeCode_Ok() throws Exception {
@@ -91,8 +187,8 @@ public class OerebIconizerQgis3SubstringTest {
             createOrReplaceSchema(con, schemaName);
             
             Statement s1 = con.createStatement();
-            s1.execute("CREATE TABLE " + dbQTable + "(t_id SERIAL, artcode TEXT, symbol BYTEA, legendetext TEXT);");
-            s1.execute("INSERT INTO " + dbQTable + "(artcode) VALUES('" + typeCodeCommunal +"');");
+            s1.execute("CREATE TABLE " + dbQTable + "(t_id SERIAL, artcode TEXT, artcodeliste TEXT, symbol BYTEA, legendetext TEXT);");
+            s1.execute("INSERT INTO " + dbQTable + "(artcode, artcodeliste) VALUES('" + typeCodeCommunal +"', 'GrundnutzungListe.2601');");
             s1.close();
             con.commit();
             closeConnection(con);
@@ -105,7 +201,7 @@ public class OerebIconizerQgis3SubstringTest {
             legendEntries.add(entry);
                         
             OerebIconizer iconizer = new OerebIconizer();
-            int count = iconizer.updateSymbols(legendEntries, postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword(), dbQTable, typeCodeAttrName, symbolAttrName, null, true);
+            int count = iconizer.updateSymbols(legendEntries, postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword(), dbQTable, typeCodeAttrName,  "artcodeliste", "GrundnutzungListe", symbolAttrName, null, true);
 
             // Check if everything is ok.
             con = connect(postgres);

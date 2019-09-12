@@ -25,6 +25,8 @@ import org.w3c.dom.NodeList;
 
 public class Qgis3SimpleSymbolTypeCodeBuilder implements SymbolTypeCodeBuilder {
     Logger log = LoggerFactory.getLogger(this.getClass());
+    
+    String geometryType;
 
     private String configFileName = null;
     String legendGraphicUrl = null;
@@ -59,10 +61,29 @@ public class Qgis3SimpleSymbolTypeCodeBuilder implements SymbolTypeCodeBuilder {
         HashMap<String, String> prefMap = new HashMap<String, String>() {{
             put("se", "http://www.opengis.net/se");
             put("ogc", "http://www.opengis.net/ogc");
+            put("sld", "http://www.opengis.net/sld");
         }};
         SimpleNamespaceContext namespaces = new SimpleNamespaceContext(prefMap);
         xpath.setNamespaceContext(namespaces);
 
+//        XPathExpression exprName = xpath.compile("//sld:NamedLayer/se:Name");
+//        Object resultName = exprName.evaluate(document, XPathConstants.NODESET);
+//        NodeList nodesName = (NodeList) resultName;
+//        
+////        log.info(String.valueOf(nodesName.getLength()));
+//
+//        String layerName = nodesName.item(0).getTextContent();
+//        if (layerName.contains(".Flaeche")) {
+//            geometryType = "Flaeche";
+//        } else if (layerName.contains(".Linie")) {
+//            geometryType = "Linie";
+//        } else if (layerName.contains(".Punkt")) {
+//            geometryType = "Punkt";
+//        } else {
+//            geometryType = null;
+//        }
+////        log.info(geometryType);
+        
         XPathExpression expr = xpath.compile("//se:FeatureTypeStyle/se:Rule");
 
         Object result = expr.evaluate(document, XPathConstants.NODESET);
@@ -83,6 +104,7 @@ public class Qgis3SimpleSymbolTypeCodeBuilder implements SymbolTypeCodeBuilder {
             legendEntry.setTypeCode(typeCodeValue);
             legendEntry.setLegendText(simpleRule.getRuleName());
             legendEntry.setSymbol(symbol);
+            legendEntry.setGeometryType(geometryType);
             
             legendEntries.add(legendEntry);
         }

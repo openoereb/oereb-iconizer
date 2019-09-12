@@ -7,6 +7,7 @@ public class LegendEntry {
     private String typeCode;
     private String typeCodeList;
     private String legendText;
+    private String geometryType;
 
     public BufferedImage getSymbol() {
         return symbol;
@@ -31,5 +32,11 @@ public class LegendEntry {
     }
     public void setLegendText(String legendText) {
         this.legendText = legendText;
+    }
+    public String getGeometryType() {
+        return geometryType;
+    }
+    public void setGeometryType(String geometryType) {
+        this.geometryType = geometryType;
     }    
 }
