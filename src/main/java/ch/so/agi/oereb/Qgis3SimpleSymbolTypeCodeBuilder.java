@@ -91,22 +91,24 @@ public class Qgis3SimpleSymbolTypeCodeBuilder implements SymbolTypeCodeBuilder {
        
         for (int i = 0; i < nodes.getLength(); i++) {
             SimpleRule simpleRule = evaluateRule(nodes.item(i));
-            String typeCodeValue = simpleRule.getTypeCodeValue();            
-            String ruleName = URLEncoder.encode(simpleRule.getRuleName(), "UTF-8");
-            //log.info(ruleName);
-            
-            String requestUrl = legendGraphicUrl + "&RULE=" + ruleName;
-            log.debug(requestUrl);
-            
-            BufferedImage symbol = Utilities.getRemoteImage(requestUrl);
+            if (simpleRule != null) {
+                String typeCodeValue = simpleRule.getTypeCodeValue();            
+                String ruleName = URLEncoder.encode(simpleRule.getRuleName(), "UTF-8");
+                //log.info(ruleName);
+                
+                String requestUrl = legendGraphicUrl + "&RULE=" + ruleName;
+                log.debug(requestUrl);
+                
+                BufferedImage symbol = Utilities.getRemoteImage(requestUrl);
 
-            LegendEntry legendEntry = new LegendEntry();
-            legendEntry.setTypeCode(typeCodeValue);
-            legendEntry.setLegendText(simpleRule.getRuleName());
-            legendEntry.setSymbol(symbol);
-            legendEntry.setGeometryType(geometryType);
-            
-            legendEntries.add(legendEntry);
+                LegendEntry legendEntry = new LegendEntry();
+                legendEntry.setTypeCode(typeCodeValue);
+                legendEntry.setLegendText(simpleRule.getRuleName());
+                legendEntry.setSymbol(symbol);
+                legendEntry.setGeometryType(geometryType);
+                
+                legendEntries.add(legendEntry);
+            }
         }
         return legendEntries;
     }
@@ -120,8 +122,7 @@ public class Qgis3SimpleSymbolTypeCodeBuilder implements SymbolTypeCodeBuilder {
 
         NodeList nodes = node.getChildNodes();
         for (int i = 0; i < nodes.getLength(); i++) {
-            Node childNode = nodes.item(i);
-              
+            Node childNode = nodes.item(i);              
             if (childNode.getLocalName() != null && childNode.getLocalName().equalsIgnoreCase("Name")) {
                 ruleName = childNode.getTextContent();
             }
@@ -132,7 +133,8 @@ public class Qgis3SimpleSymbolTypeCodeBuilder implements SymbolTypeCodeBuilder {
         }
         
         if (ruleName == null || typeCodeValue == null) {
-            throw new Exception("rule name or typecode value not found");
+            //throw new Exception("rule name or typecode value not found");
+            return null;
         }
         log.debug(ruleName + " " + typeCodeValue);
         return new SimpleRule(ruleName, typeCodeValue);
