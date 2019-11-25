@@ -109,7 +109,7 @@ public class OerebIconizerQgis3SimpleTest {
             OerebIconizer iconizer = new OerebIconizer();
             iconizer.saveSymbolsToDisk(legendEntries, directory);
 
-        } catch (java.lang.NullPointerException e) {            
+        } catch (Exception e) {            
             // do nothing
         }
     }
